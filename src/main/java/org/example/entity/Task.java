@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Entity
 @Table(name = "tasks")
 @Data
@@ -30,4 +32,11 @@ public class Task {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id")
     private User author;
+
+    @OneToMany(mappedBy = "task")
+    private List<TestCase> testCases;
+
+    @OneToMany(mappedBy = "task")
+    private List<Submission> submissions;
+
 }

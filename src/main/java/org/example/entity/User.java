@@ -10,6 +10,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -45,8 +46,8 @@ public class User implements UserDetails {
     @Column(length = 100)
     private String region;
 
-    @Column(columnDefinition = "DATE DEFAULT CURRENT_DATE", updatable = false)
-    private LocalDate registrationDate;
+    @Column(insertable = false, updatable = false)
+    private LocalDateTime registrationDate;
 
     @Column(length = 20)
     private String phoneNumber;
@@ -57,6 +58,9 @@ public class User implements UserDetails {
 
     @OneToMany(mappedBy = "author")
     private List<Task> tasks;
+
+    @OneToMany(mappedBy = "user")
+    private List<Submission> submissions;
 
 
     @Override
