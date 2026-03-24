@@ -36,7 +36,7 @@ public class Submission {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String status;
+    private Status status;
 
     private int executionTimeMs;
 

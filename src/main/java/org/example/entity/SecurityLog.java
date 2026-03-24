@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-@Table(name = "submissions")
+@Table(name = "security_logs")
 @Entity
 @Data
 @Builder
