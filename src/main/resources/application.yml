@@ -10,8 +10,8 @@ spring:
   # 🐘 Настройка PostgreSQL
   datasource:
     url: jdbc:postgresql://localhost:5432/codeguard
-    username: user
-    password: pass
+    username: postgres
+    password: Pass123
     driver-class-name: org.postgresql.Driver
 
   # 🛠 Настройка JPA/Hibernate
