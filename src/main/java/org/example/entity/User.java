@@ -23,7 +23,7 @@ import java.util.List;
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Column(unique = true, nullable = false)
     private String email;
@@ -50,6 +50,14 @@ public class User implements UserDetails {
 
     @Column(length = 20)
     private String phoneNumber;
+
+    @OneToMany(mappedBy = "teacher")
+    private List<Group> groups;
+
+
+    @OneToMany(mappedBy = "author")
+    private List<Task> tasks;
+
 
     @Override
     public String getUsername() {

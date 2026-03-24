@@ -7,27 +7,21 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "tasks")
+@Table(name = "groups")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Task {
+public class Group {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String title;
-
-    @Column(columnDefinition = "TEXT")
-    private String description;
-
-    private Integer timeLimitMs;
-
-    private Integer memoryLimitMb;
+    @Column(name = "name", length = 100, nullable = false)
+    private String name;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "author_id")
-    private User author;
+    @JoinColumn(name = "teacher_id")
+    private User teacher;
 }
