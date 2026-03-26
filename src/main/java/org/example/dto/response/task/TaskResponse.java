@@ -1,11 +1,14 @@
-package org.example.dto.response.user.student;
+package org.example.dto.response.task;
 
 import lombok.Builder;
 import lombok.Data;
+import org.example.dto.common.TestCase;
 
 @Data
 @Builder
-public class StudentTaskResponse {
+public class TaskResponse {
+    private Long id;
+
     private String title;
 
     private String description;
@@ -14,7 +17,7 @@ public class StudentTaskResponse {
 
     private Integer memoryLimitMb;
 
-    private StudentTestCase[] testCases;
+    private TestCase[] testCases;
 
 
 }

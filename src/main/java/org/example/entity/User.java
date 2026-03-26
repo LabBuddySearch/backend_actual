@@ -38,6 +38,10 @@ public class User implements UserDetails {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    private UserStatus status = UserStatus.ACTIVE;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Role role;
 
     private Integer favCategoryId;

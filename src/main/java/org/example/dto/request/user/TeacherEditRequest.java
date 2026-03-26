@@ -2,11 +2,10 @@ package org.example.dto.request.user;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
-import lombok.Builder;
 import lombok.Data;
 
 @Data
-public class StudentEditRequest {
+public class TeacherEditRequest {
     @Email
     @Size(max = 255)
     private String email;
@@ -15,9 +14,6 @@ public class StudentEditRequest {
     private String fullName;
 
     private int age;
-
-    @Size(max = 100)
-    private String group;
 
     @Size(max = 20)
     private String phoneNumber;
