@@ -2,10 +2,11 @@ package org.example.dto.response.task;
 
 import lombok.Builder;
 import lombok.Data;
-import org.example.dto.response.user.student.StudentMainTask;
+
+import java.util.List;
 
 @Data
 @Builder
 public class ListTasksResponse {
-    private StudentMainTask[] tasks;
+    private List<ShortTaskResponse> tasks;
 }

@@ -5,8 +5,10 @@ import lombok.Data;
 
 @Data
 @Builder
-public class TestCase {
+public class TestCaseDto {
     private String inputData;
 
     private String expectedOutput;
+
+    private Boolean isHidden;
 }

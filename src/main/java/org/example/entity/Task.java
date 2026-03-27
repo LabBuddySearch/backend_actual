@@ -33,7 +33,7 @@ public class Task {
     @JoinColumn(name = "author_id")
     private User author;
 
-    @OneToMany(mappedBy = "task")
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL)
     private List<TestCase> testCases;
 
     @OneToMany(mappedBy = "task")

@@ -1,14 +1,14 @@
-package org.example.dto.response.user.student;
+package org.example.dto.response.task;
 
 import lombok.Builder;
 import lombok.Data;
 
 @Data
 @Builder
-public class StudentMainTask {
+public class ShortTaskResponse {
     private Long id;
 
-    private String status;
-
     private String title;
+
+    private String author;
 }
