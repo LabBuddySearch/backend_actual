@@ -9,7 +9,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 
@@ -37,9 +37,8 @@ public class User implements UserDetails {
     private Integer age;
 
     @Builder.Default
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private UserStatus status = UserStatus.ACTIVE;
+    private Boolean status = true;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -51,13 +50,13 @@ public class User implements UserDetails {
     private String region;
 
     @Column(insertable = false, updatable = false)
-    private LocalDateTime registrationDate;
+    private LocalDate registrationDate;
 
     @Column(length = 20)
     private String phoneNumber;
 
     @Column(length = 100)
-    private String group;
+    private String studentGroup;
 
     @OneToMany(mappedBy = "teacher")
     private List<Group> groups;
