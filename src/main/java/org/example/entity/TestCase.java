@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 public class TestCase {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "task_id")
@@ -27,5 +27,6 @@ public class TestCase {
     @Column(columnDefinition = "TEXT")
     private String expectedOutput;
 
+    @Builder.Default
     private Boolean isHidden = false;
 }

@@ -7,19 +7,17 @@ import org.example.entity.Task;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
+import org.mapstruct.ReportingPolicy;
 
-import java.util.List;
-
-@Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING,
+        unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface TaskMapper {
-    @Mapping(target = "testCases", ignore = true)
     Task fromNewTaskRequest(NewTaskRequest newTaskRequest);
 
+    @Mapping(target = "author", ignore = true)
     TaskResponse toTaskResponse(Task task);
 
     @Mapping(target = "author", ignore = true)
     ShortTaskResponse toShortTaskResponse(Task task);
-
-    List<ShortTaskResponse> toShortTaskResponseList(List<Task> taskList);
 
 }

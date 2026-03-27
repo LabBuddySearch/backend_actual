@@ -3,10 +3,11 @@ package org.example.mapper;
 import org.example.dto.common.TestCaseDto;
 import org.example.entity.TestCase;
 import org.mapstruct.Mapper;
+import org.mapstruct.ReportingPolicy;
 
 import java.util.List;
 
-@Mapper
+@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface TestCaseMapper {
     TestCase fromTestCaseDto(TestCaseDto testCaseDto);
 

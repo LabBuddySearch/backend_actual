@@ -12,6 +12,6 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 public class StudentGroupId implements Serializable {
-    private Long studentId;
-    private Long groupId;
+    private Integer studentId;
+    private Integer groupId;
 }

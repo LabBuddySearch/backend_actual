@@ -4,11 +4,9 @@ CREATE TABLE users (
                        email VARCHAR(255) UNIQUE NOT NULL,
                        password VARCHAR(255) NOT NULL,
                        full_name VARCHAR(255) NOT NULL,
-                       status BOOLEAN NOT NULL,
                        age INT,
                        role VARCHAR(20) NOT NULL,
                        fav_category_id INT,
-                       group VARCHAR(100) NOT NULL,
                        region VARCHAR(100),
                        registration_date DATE DEFAULT CURRENT_DATE,
                        phone_number VARCHAR(20)

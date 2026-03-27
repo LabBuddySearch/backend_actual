@@ -50,7 +50,7 @@ public class TaskServiceImpl {
     }
 
     @Transactional
-    public TaskResponse getTask(Long id) {
+    public TaskResponse getTask(Integer id) {
         Task task = taskRepository.findById(id).orElseThrow(() -> new NotFoundException("Task does not exist"));
         TaskResponse taskResponse = taskMapper.toTaskResponse(task);
         taskResponse.setTestCaseDtos(testCaseMapper.toTestCaseDtoList(task.getTestCases()));
