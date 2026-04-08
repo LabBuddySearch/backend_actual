@@ -12,6 +12,8 @@ import org.example.mapper.TaskMapper;
 import org.example.mapper.TestCaseMapper;
 import org.example.repository.TaskRepository;
 import org.example.repository.UserRepository;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +29,7 @@ public class TaskServiceImpl {
     private final TestCaseMapper testCaseMapper;
 
     @Transactional
+    @CacheEvict(cacheNames = {"tasks_list", "task_by_id"}, allEntries = true)
     public void createTask(NewTaskRequest newTaskRequest, String email) {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("User does not exist"));
         Task task = taskMapper.fromNewTaskRequest(newTaskRequest);
@@ -36,6 +39,7 @@ public class TaskServiceImpl {
     }
 
     @Transactional
+    @Cacheable(cacheNames = "tasks_list")
     public ListTasksResponse getTasks() {
         List<Task> tasks = taskRepository.findAll();
         return ListTasksResponse.builder()
@@ -50,6 +54,7 @@ public class TaskServiceImpl {
     }
 
     @Transactional
+    @Cacheable(cacheNames = "task_by_id", key = "#id")
     public TaskResponse getTask(Integer id) {
         Task task = taskRepository.findById(id).orElseThrow(() -> new NotFoundException("Task does not exist"));
         TaskResponse taskResponse = taskMapper.toTaskResponse(task);

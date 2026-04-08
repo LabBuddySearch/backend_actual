@@ -11,6 +11,8 @@ import org.example.security.JwtService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl {
@@ -24,7 +26,10 @@ public class AuthServiceImpl {
         var user = userMapper.fromRegisterRequest(request);
         userRepository.save(user);
 
-        var token = jwtService.generateToken(user);
+        var claims = new HashMap<String, Object>();
+        claims.put("userId", user.getId());
+        claims.put("role", user.getRole() == null ? null : user.getRole().name());
+        var token = jwtService.generateToken(claims, user);
         return new AuthResponse(token);
     }
 
@@ -35,7 +40,10 @@ public class AuthServiceImpl {
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new RuntimeException("Invalid password");
         }
-        String token = jwtService.generateToken(user);
+        var claims = new HashMap<String, Object>();
+        claims.put("userId", user.getId());
+        claims.put("role", user.getRole() == null ? null : user.getRole().name());
+        String token = jwtService.generateToken(claims, user);
         return new AuthResponse(token);
     }
 }

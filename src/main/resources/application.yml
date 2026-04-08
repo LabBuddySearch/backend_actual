@@ -40,6 +40,12 @@ application:
       secret-key: "my-super-secret-key-for-codeguard-project-2026-very-long"
       expiration: 86400000
 
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+
 logging:
   level:
     org.springframework.security: DEBUG
