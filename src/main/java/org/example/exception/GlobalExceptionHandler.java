@@ -56,9 +56,20 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleGeneralException(Exception ex) {
         ErrorResponse error = ErrorResponse.builder()
                 .errorCode("INTERNAL_SERVER_ERROR")
-                .message("Произошла непредвиденная ошибка на сервере")
+                .message(ex.getClass().getName() + " " + ex.getMessage())
                 .timestamp(LocalDateTime.now())
                 .build();
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    // 5. Объект не найден
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNotFoundException(Exception ex) {
+        ErrorResponse error = ErrorResponse.builder()
+                .errorCode("NOT_FOUND")
+                .message("Объект не найден")
+                .timestamp(LocalDateTime.now())
+                .build();
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 }

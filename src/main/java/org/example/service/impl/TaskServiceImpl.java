@@ -1,4 +1,4 @@
-package org.example.repository.impl;
+package org.example.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.example.dto.request.task.NewTaskRequest;

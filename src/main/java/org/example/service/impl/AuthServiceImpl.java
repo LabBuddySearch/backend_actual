@@ -1,14 +1,18 @@
-package org.example.repository.impl;
+package org.example.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.example.dto.request.user.LoginRequest;
 import org.example.dto.request.user.RegisterRequest;
 import org.example.dto.response.user.auth.AuthResponse;
 import org.example.entity.User;
+import org.example.exception.NotFoundException;
 import org.example.mapper.UserMapper;
 import org.example.repository.UserRepository;
 import org.example.security.JwtService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -20,7 +24,8 @@ public class AuthServiceImpl {
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final UserMapper userMapper;
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final AuthenticationManager authenticationManager;
+
 
     public AuthResponse register(RegisterRequest request) {
         var user = userMapper.fromRegisterRequest(request);
@@ -35,11 +40,19 @@ public class AuthServiceImpl {
 
 
     public AuthResponse login(LoginRequest request) {
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Invalid password");
-        }
+
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getEmail(),
+                        request.getPassword()
+                )
+        );
+
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+
+        User user = userRepository.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new NotFoundException("The user with this email was not found"));
+
         var claims = new HashMap<String, Object>();
         claims.put("userId", user.getId());
         claims.put("role", user.getRole() == null ? null : user.getRole().name());

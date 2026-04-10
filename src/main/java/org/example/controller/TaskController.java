@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.dto.request.task.NewTaskRequest;
 import org.example.dto.response.task.ListTasksResponse;
 import org.example.dto.response.task.TaskResponse;
-import org.example.repository.impl.TaskServiceImpl;
+import org.example.service.impl.TaskServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;

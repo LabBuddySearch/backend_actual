@@ -56,8 +56,8 @@ public class User implements UserDetails {
     @Column(length = 20)
     private String phoneNumber;
 
-    @Column(name = "group_name", length = 100)
-    private String group;
+    @Column(length = 100)
+    private String student_group;
 
     @OneToMany(mappedBy = "teacher")
     private List<Group> groups;

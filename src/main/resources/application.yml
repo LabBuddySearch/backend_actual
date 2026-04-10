@@ -37,7 +37,7 @@ spring:
 application:
   security:
     jwt:
-      secret-key: "my-super-secret-key-for-codeguard-project-2026-very-long"
+      secret-key: "q52HnyQniFXrzzITVFBjFrZASQ6JtxmFVwHDVDCbCzo="
       expiration: 86400000
 
 springdoc:

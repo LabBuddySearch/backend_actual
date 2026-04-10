@@ -23,5 +23,5 @@ public class RegisterRequest {
     private String password;
 
     @Size(max = 100)
-    private String group;
+    private String student_group;
 }
