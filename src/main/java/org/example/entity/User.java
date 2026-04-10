@@ -9,7 +9,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -37,8 +37,9 @@ public class User implements UserDetails {
     private Integer age;
 
     @Builder.Default
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Boolean status = true;
+    private UserStatus status = UserStatus.ACTIVE;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -50,13 +51,13 @@ public class User implements UserDetails {
     private String region;
 
     @Column(insertable = false, updatable = false)
-    private LocalDate registrationDate;
+    private LocalDateTime registrationDate;
 
     @Column(length = 20)
     private String phoneNumber;
 
-    @Column(length = 100)
-    private String studentGroup;
+    @Column(name = "group_name", length = 100)
+    private String group;
 
     @OneToMany(mappedBy = "teacher")
     private List<Group> groups;
@@ -81,7 +82,10 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(role.toString()));
+        if (role == null) {
+            return List.of();
+        }
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }
 
 }

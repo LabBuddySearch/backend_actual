@@ -1,47 +1,51 @@
-# Настройки сервера
 server:
   port: 8080
 
-# Основные настройки Spring
 spring:
   application:
     name: codeguard
 
-  # 🐘 Настройка PostgreSQL
+
   datasource:
     url: jdbc:postgresql://localhost:5432/codeguard
     username: postgres
     password: Pass123
     driver-class-name: org.postgresql.Driver
 
-  # 🛠 Настройка JPA/Hibernate
+
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
         format_sql: true
+        # Это заставит Hibernate использовать правильные типы Postgres (например, TEXT)
+        dialect: org.hibernate.dialect.PostgreSQLDialect
 
-  # 🚀 Настройка Flyway (Миграции БД)
+
   flyway:
-    enabled: true
-    baseline-on-migrate: true
+    enabled: false
 
-  # ⚡ Настройка Redis
+
   data:
     redis:
       host: localhost
       port: 6379
 
-# 🛡 Твои кастомные настройки безопасности (JWT)
+
 application:
   security:
     jwt:
       secret-key: "my-super-secret-key-for-codeguard-project-2026-very-long"
       expiration: 86400000
 
-# Настройки логирования
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+
 logging:
   level:
     org.springframework.security: DEBUG
