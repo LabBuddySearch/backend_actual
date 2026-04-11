@@ -3,6 +3,7 @@ package org.example.exception;
 import org.example.dto.response.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -71,5 +72,27 @@ public class GlobalExceptionHandler {
                 .timestamp(LocalDateTime.now())
                 .build();
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
+    // 6. Ошибка десериализации (не получилось прочитать входящий запрос, ошибка до валидации через @Valid)
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorResponse> handleHttpMessageReadException(HttpMessageNotReadableException ex) {
+        ErrorResponse error = ErrorResponse.builder()
+                .errorCode("BAD_REQUEST")
+                .message("Ошибка в данных: " + ex.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+    // 5. Объект не уникален
+    @ExceptionHandler(NotUniqueObjectException.class)
+    public ResponseEntity<ErrorResponse> handleNotUniqueException(Exception ex) {
+        ErrorResponse error = ErrorResponse.builder()
+                .errorCode("CONFLICT")
+                .message("Такой объект уже существует")
+                .timestamp(LocalDateTime.now())
+                .build();
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
     }
 }

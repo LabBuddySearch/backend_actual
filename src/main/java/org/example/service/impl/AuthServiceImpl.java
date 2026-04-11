@@ -6,6 +6,7 @@ import org.example.dto.request.user.RegisterRequest;
 import org.example.dto.response.user.auth.AuthResponse;
 import org.example.entity.User;
 import org.example.exception.NotFoundException;
+import org.example.exception.NotUniqueObjectException;
 import org.example.mapper.UserMapper;
 import org.example.repository.UserRepository;
 import org.example.security.JwtService;
@@ -28,6 +29,9 @@ public class AuthServiceImpl {
 
 
     public AuthResponse register(RegisterRequest request) {
+        if (userRepository.findByEmail(request.getEmail()).isPresent()){
+            throw new NotUniqueObjectException("The user with this email already exists");
+        }
         var user = userMapper.fromRegisterRequest(request);
         userRepository.save(user);
 
