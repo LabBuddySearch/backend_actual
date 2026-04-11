@@ -29,7 +29,7 @@ public class AuthServiceImpl {
 
 
     public AuthResponse register(RegisterRequest request) {
-        if (userRepository.findByEmail(request.getEmail()).isPresent()){
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new NotUniqueObjectException("The user with this email already exists");
         }
         var user = userMapper.fromRegisterRequest(request);
@@ -39,7 +39,11 @@ public class AuthServiceImpl {
         claims.put("userId", user.getId());
         claims.put("role", user.getRole() == null ? null : user.getRole().name());
         var token = jwtService.generateToken(claims, user);
-        return new AuthResponse(token);
+        return AuthResponse.builder()
+                .accessToken(token)
+                .expiresInMs(jwtService.getJwtExpiration())
+                .user(userMapper.toUserResponse(user))
+                .build();
     }
 
 
@@ -61,7 +65,11 @@ public class AuthServiceImpl {
         claims.put("userId", user.getId());
         claims.put("role", user.getRole() == null ? null : user.getRole().name());
         String token = jwtService.generateToken(claims, user);
-        return new AuthResponse(token);
+        return AuthResponse.builder()
+                .accessToken(token)
+                .expiresInMs(jwtService.getJwtExpiration())
+                .user(userMapper.toUserResponse(user))
+                .build();
     }
 }
 

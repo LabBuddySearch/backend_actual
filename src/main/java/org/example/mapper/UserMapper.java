@@ -1,6 +1,7 @@
 package org.example.mapper;
 
 import org.example.dto.request.user.RegisterRequest;
+import org.example.dto.response.user.auth.UserResponse;
 import org.example.entity.User;
 import org.example.mapper.utils.UserMapperUtil;
 import org.mapstruct.Mapper;
@@ -18,4 +19,6 @@ public interface UserMapper {
     @Mapping(target = "password", qualifiedByName = {"UserMapperUtil", "getEncodedPassword"}, source = "password")
     User fromRegisterRequest(RegisterRequest registerRequest);
 
+
+    UserResponse toUserResponse(User user);
 }
