@@ -1,9 +1,9 @@
 package org.example.mapper;
 
-import org.example.dto.common.TestCaseDto;
+import org.example.dto.request.task.TestCaseRequest;
+import org.example.dto.response.task.TestCaseResponse;
 import org.example.entity.TestCase;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import org.mapstruct.*;
 
 import java.util.List;
 
@@ -11,11 +11,14 @@ import java.util.List;
 public interface TestCaseMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "task", ignore = true)
-    TestCase fromTestCaseDto(TestCaseDto testCaseDto);
+    TestCase fromTestCaseRequest(TestCaseRequest testCaseDto);
 
-    List<TestCase> fromTestCaseDtoList(List<TestCaseDto> testCaseDtoList);
+    List<TestCase> fromTestCaseRequestList(List<TestCaseRequest> testCaseDtoList);
 
-    TestCaseDto toTestCaseDto(TestCase testCase);
+    TestCaseResponse toTestCaseResponse(TestCase testCase);
 
-    List<TestCaseDto> toTestCaseDtoList(List<TestCase> testCaseList);
+    List<TestCaseResponse> toTestCaseResponseList(List<TestCase> testCaseList);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateTestCaseFromDto(TestCaseRequest dto, @MappingTarget TestCase entity);
 }

@@ -1,14 +1,15 @@
-package org.example.dto.common;
+package org.example.dto.request.task;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 
 @Data
 @Builder
 @Schema(description = "Test data")
-public class TestCaseDto {
+public class TestCaseRequest {
     @Schema(
             description = "Test input data",
             example = "ABBCABA",
@@ -30,5 +31,6 @@ public class TestCaseDto {
             example = "false",
             requiredMode = Schema.RequiredMode.REQUIRED
     )
+    @NotBlank
     private Boolean isHidden;
 }

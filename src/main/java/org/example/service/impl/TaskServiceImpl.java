@@ -35,7 +35,7 @@ public class TaskServiceImpl {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("User does not exist"));
         Task task = taskMapper.fromNewTaskRequest(newTaskRequest);
         task.setAuthor(user);
-        List<TestCase> testCases = testCaseMapper.fromTestCaseDtoList(newTaskRequest.getTestCaseDtos());
+        List<TestCase> testCases = testCaseMapper.fromTestCaseRequestList(newTaskRequest.getTestCases());
         testCases.forEach(task::addTestCase);
         taskRepository.save(task);
     }
@@ -60,7 +60,7 @@ public class TaskServiceImpl {
     public TaskResponse getTask(Integer id, boolean teacher) {
         Task task = taskRepository.findById(id).orElseThrow(() -> new NotFoundException("Task does not exist"));
         TaskResponse taskResponse = taskMapper.toTaskResponse(task);
-        taskResponse.setTestCaseDtos(testCaseMapper.toTestCaseDtoList(teacher ? task.getTestCases() :
+        taskResponse.setTestCases(testCaseMapper.toTestCaseResponseList(teacher ? task.getTestCases() :
                 task.getTestCases().stream().filter(t -> !t.getIsHidden()).toList()));
         return taskResponse;
     }

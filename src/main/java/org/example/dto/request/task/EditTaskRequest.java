@@ -3,7 +3,6 @@ package org.example.dto.request.task;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-import org.example.dto.common.TestCaseDto;
 
 import java.util.List;
 
@@ -48,5 +47,5 @@ public class EditTaskRequest {
                     ]
                     """
     )
-    private List<TestCaseDto> testCaseDtos;
+    private List<TestCaseRequest> testCases;
 }

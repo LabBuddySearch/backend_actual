@@ -3,7 +3,6 @@ package org.example.dto.response.task;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Data;
-import org.example.dto.common.TestCaseDto;
 
 import java.util.List;
 
@@ -59,7 +58,7 @@ public class TaskResponse {
                     ]
                     """
     )
-    private List<TestCaseDto> testCaseDtos;
+    private List<TestCaseResponse> testCases;
 
 
 }

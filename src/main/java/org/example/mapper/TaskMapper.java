@@ -19,7 +19,7 @@ public interface TaskMapper {
     Task fromNewTaskRequest(NewTaskRequest newTaskRequest);
 
     @Mapping(target = "author", ignore = true)
-    @Mapping(target = "testCaseDtos", ignore = true)
+    @Mapping(target = "testCases", ignore = true)
     TaskResponse toTaskResponse(Task task);
 
     @Mapping(target = "author", ignore = true)

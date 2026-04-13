@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-import org.example.dto.common.TestCaseDto;
 
 import java.util.List;
 
@@ -58,6 +57,6 @@ public class NewTaskRequest {
                     """,
             requiredMode = Schema.RequiredMode.REQUIRED
     )
-    private List<TestCaseDto> testCaseDtos;
+    private List<TestCaseRequest> testCases;
 
 }
