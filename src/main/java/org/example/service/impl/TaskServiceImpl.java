@@ -55,10 +55,11 @@ public class TaskServiceImpl {
 
     @Transactional
     @Cacheable(cacheNames = "task_by_id", key = "#id")
-    public TaskResponse getTask(Integer id) {
+    public TaskResponse getTask(Integer id, boolean teacher) {
         Task task = taskRepository.findById(id).orElseThrow(() -> new NotFoundException("Task does not exist"));
         TaskResponse taskResponse = taskMapper.toTaskResponse(task);
-        taskResponse.setTestCaseDtos(testCaseMapper.toTestCaseDtoList(task.getTestCases()));
+        taskResponse.setTestCaseDtos(testCaseMapper.toTestCaseDtoList(teacher ? task.getTestCases():
+                task.getTestCases().stream().filter(t -> !t.getIsHidden()).toList()));
         return taskResponse;
     }
 

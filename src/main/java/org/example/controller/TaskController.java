@@ -39,9 +39,15 @@ public class TaskController {
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Get task by id")
-    public ResponseEntity<TaskResponse> getTaskById(@PathVariable Integer id) {
-        return ResponseEntity.ok(taskService.getTask(id));
+    @Operation(summary = "Get student task by id")
+    public ResponseEntity<TaskResponse> getStudentTaskById(@PathVariable Integer id) {
+        return ResponseEntity.ok(taskService.getTask(id, false));
+    }
+
+    @GetMapping("/{id}/teacher")
+    @Operation(summary = "Get teacher task by id")
+    public ResponseEntity<TaskResponse> getTeacherTaskById(@PathVariable Integer id) {
+        return ResponseEntity.ok(taskService.getTask(id, true));
     }
 }
 
