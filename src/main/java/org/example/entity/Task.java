@@ -39,4 +39,8 @@ public class Task {
     @OneToMany(mappedBy = "task")
     private List<Submission> submissions;
 
+    public void addTestCase(TestCase testCase) {
+        testCases.add(testCase);
+        testCase.setTask(this);
+    }
 }

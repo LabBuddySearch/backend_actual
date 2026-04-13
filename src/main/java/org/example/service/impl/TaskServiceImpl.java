@@ -6,6 +6,7 @@ import org.example.dto.response.task.ListTasksResponse;
 import org.example.dto.response.task.ShortTaskResponse;
 import org.example.dto.response.task.TaskResponse;
 import org.example.entity.Task;
+import org.example.entity.TestCase;
 import org.example.entity.User;
 import org.example.exception.NotFoundException;
 import org.example.mapper.TaskMapper;
@@ -34,7 +35,8 @@ public class TaskServiceImpl {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("User does not exist"));
         Task task = taskMapper.fromNewTaskRequest(newTaskRequest);
         task.setAuthor(user);
-        task.setTestCases(testCaseMapper.fromTestCaseDtoList(newTaskRequest.getTestCaseDtos()));
+        List<TestCase> testCases = testCaseMapper.fromTestCaseDtoList(newTaskRequest.getTestCaseDtos());
+        testCases.forEach(task::addTestCase);
         taskRepository.save(task);
     }
 
@@ -58,7 +60,7 @@ public class TaskServiceImpl {
     public TaskResponse getTask(Integer id, boolean teacher) {
         Task task = taskRepository.findById(id).orElseThrow(() -> new NotFoundException("Task does not exist"));
         TaskResponse taskResponse = taskMapper.toTaskResponse(task);
-        taskResponse.setTestCaseDtos(testCaseMapper.toTestCaseDtoList(teacher ? task.getTestCases():
+        taskResponse.setTestCaseDtos(testCaseMapper.toTestCaseDtoList(teacher ? task.getTestCases() :
                 task.getTestCases().stream().filter(t -> !t.getIsHidden()).toList()));
         return taskResponse;
     }

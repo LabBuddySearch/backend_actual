@@ -10,11 +10,16 @@ import org.mapstruct.MappingConstants;
 import org.mapstruct.ReportingPolicy;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING,
-        unmappedTargetPolicy = ReportingPolicy.IGNORE)
+        unmappedTargetPolicy = ReportingPolicy.ERROR)
 public interface TaskMapper {
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "author", ignore = true)
+    @Mapping(target = "testCases", ignore = true)
+    @Mapping(target = "submissions", ignore = true)
     Task fromNewTaskRequest(NewTaskRequest newTaskRequest);
 
     @Mapping(target = "author", ignore = true)
+    @Mapping(target = "testCaseDtos", ignore = true)
     TaskResponse toTaskResponse(Task task);
 
     @Mapping(target = "author", ignore = true)
