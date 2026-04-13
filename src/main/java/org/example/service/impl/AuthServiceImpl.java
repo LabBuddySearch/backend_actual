@@ -3,6 +3,7 @@ package org.example.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.request.user.LoginRequest;
 import org.example.dto.request.user.RegisterRequest;
+import org.example.dto.request.user.Role;
 import org.example.dto.response.user.auth.AuthResponse;
 import org.example.entity.User;
 import org.example.exception.NotFoundException;
@@ -31,6 +32,9 @@ public class AuthServiceImpl {
     public AuthResponse register(RegisterRequest request) {
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new NotUniqueObjectException("The user with this email already exists");
+        }
+        if (request.getRole() == Role.TEACHER) {
+            request.setStudent_group("");
         }
         var user = userMapper.fromRegisterRequest(request);
         userRepository.save(user);
