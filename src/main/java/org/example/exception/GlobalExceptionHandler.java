@@ -5,6 +5,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -85,7 +87,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
-    // 5. Объект не уникален
+    // 7. Объект не уникален
     @ExceptionHandler(NotUniqueObjectException.class)
     public ResponseEntity<ErrorResponse> handleNotUniqueException(Exception ex) {
         ErrorResponse error = ErrorResponse.builder()
@@ -94,5 +96,27 @@ public class GlobalExceptionHandler {
                 .timestamp(LocalDateTime.now())
                 .build();
         return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
+
+    // 8. Ошибка логина (неправильный пароль)
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ErrorResponse> handleLoginException(Exception ex) {
+        ErrorResponse error = ErrorResponse.builder()
+                .errorCode("UNAUTHORIZED")
+                .message("Неверные данные для входа")
+                .timestamp(LocalDateTime.now())
+                .build();
+        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+    }
+
+    // 9.
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ErrorResponse> handleAuthenticationException(Exception ex) {
+        ErrorResponse error = ErrorResponse.builder()
+                .errorCode("DOES_NOT_AUTHENTICATE")
+                .message("Ошибка аутентификации")
+                .timestamp(LocalDateTime.now())
+                .build();
+        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }
 }

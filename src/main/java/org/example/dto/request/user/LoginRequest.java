@@ -21,7 +21,7 @@ public class LoginRequest {
     @Size(max = 255)
     @Schema(
             description = "User password",
-            example = "pass1234",
+            example = "1111",
             requiredMode = Schema.RequiredMode.REQUIRED
     )
     private String password;

@@ -15,7 +15,6 @@ public class RegisterRequest {
             example = "STUDENT",
             requiredMode = Schema.RequiredMode.REQUIRED
     )
-    @NotBlank
     private Role role;
 
     @NotBlank

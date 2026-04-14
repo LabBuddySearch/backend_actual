@@ -19,6 +19,8 @@ public interface TestCaseMapper {
 
     List<TestCaseResponse> toTestCaseResponseList(List<TestCase> testCaseList);
 
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "task", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateTestCaseFromDto(TestCaseRequest dto, @MappingTarget TestCase entity);
 }
