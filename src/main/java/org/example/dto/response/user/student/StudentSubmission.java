@@ -10,7 +10,7 @@ public class StudentSubmission {
             description = "Submission ID",
             example = "12312311"
     )
-    private Long id;
+    private Integer id;
 
     @Schema(
             description = "Submission status",

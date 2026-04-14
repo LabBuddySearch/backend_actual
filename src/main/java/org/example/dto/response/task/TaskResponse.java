@@ -1,20 +1,24 @@
 package org.example.dto.response.task;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Schema(description = "Task data")
 public class TaskResponse {
     @Schema(
             description = "Task ID",
             example = "1231231"
     )
-    private Long id;
+    private Integer id;
 
     @Schema(
             description = "Author name",

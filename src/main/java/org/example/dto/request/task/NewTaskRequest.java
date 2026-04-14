@@ -46,15 +46,7 @@ public class NewTaskRequest {
     @NotEmpty
     @Schema(
             description = "List of task tests",
-            example = """
-                    [
-                        {
-                            "inputData": 'ABBCABA',
-                            "expectedOutput": 5,
-                            "isHidden": true
-                        }
-                    ]
-                    """,
+            example = "[{'inputData': 'ABBCABA', 'expectedOutput': 5, 'isHidden': true}]",
             requiredMode = Schema.RequiredMode.REQUIRED
     )
     private List<TestCaseRequest> testCases;

@@ -2,6 +2,7 @@ package org.example.facade;
 
 import lombok.RequiredArgsConstructor;
 import org.example.dto.request.task.SubmitTaskRequest;
+import org.example.dto.response.task.SubmissionResponse;
 import org.example.entity.Status;
 import org.example.entity.Submission;
 import org.example.entity.Task;
@@ -9,6 +10,7 @@ import org.example.entity.User;
 import org.example.execution.executor.ExecutionResult;
 import org.example.execution.factory.ExecutorFactory;
 import org.example.exception.NotFoundException;
+import org.example.mapper.SubmissionMapper;
 import org.example.repository.SubmissionRepository;
 import org.example.repository.TaskRepository;
 import org.example.repository.UserRepository;
@@ -23,6 +25,7 @@ public class SubmissionFacade {
     private final TaskRepository taskRepository;
     private final SubmissionRepository submissionRepository;
     private final ExecutorFactory executorFactory;
+    private final SubmissionMapper submissionMapper;
 
     /**
      * Оркестратор процесса отправки решения.
@@ -30,7 +33,7 @@ public class SubmissionFacade {
      * Позже: очередь, sandbox, security-логи, античит, ретраи.
      */
     @Transactional
-    public Submission submit(Integer taskId, String userEmail, SubmitTaskRequest request) {
+    public SubmissionResponse submit(Integer taskId, String userEmail, SubmitTaskRequest request) {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new NotFoundException("User does not exist"));
 
@@ -40,8 +43,8 @@ public class SubmissionFacade {
         Submission submission = Submission.builder()
                 .user(user)
                 .task(task)
-                .sourceCode(request.getCode())
-                .language("JAVA")
+                .sourceCode(request.getSourceCode())
+                .language(request.getLanguage())
                 .status(Status.PENDING)
                 .build();
 
@@ -54,7 +57,14 @@ public class SubmissionFacade {
 
         submission.setExecutionTimeMs((int) result.getExecutionTimeMs());
         submission.setStatus(result.getExitCode() == 0 ? Status.ACCEPTED : Status.WRONG);
-        return submission;
+        return submissionMapper.toSubmissionResponse(submission);
+    }
+
+    public SubmissionResponse get(Integer submitId){
+        Submission submission = submissionRepository.findById(submitId)
+                .orElseThrow(() -> new NotFoundException("Submit does not exist"));
+
+        return submissionMapper.toSubmissionResponse(submission);
     }
 }
 

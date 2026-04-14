@@ -12,7 +12,7 @@ public class AdminUser {
             description = "User ID",
             example = "12312341"
     )
-    private Long id;
+    private Integer id;
 
     @Schema(
             description = "User full name",

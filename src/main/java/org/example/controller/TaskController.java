@@ -11,6 +11,8 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @Tag(name = "Tasks", description = "Task management and retrieval")
 @SecurityRequirement(name = "bearerAuth")
+@EnableMethodSecurity
 public class TaskController {
 
     private final TaskServiceImpl taskService;
@@ -40,11 +43,13 @@ public class TaskController {
 
     @GetMapping("/{id}")
     @Operation(summary = "Get student task by id")
+    @PreAuthorize("hasRole('STUDENT')")
     public ResponseEntity<TaskResponse> getStudentTaskById(@PathVariable Integer id) {
         return ResponseEntity.ok(taskService.getTask(id, false));
     }
 
     @GetMapping("/{id}/teacher")
+    @PreAuthorize("hasRole('TEACHER')")
     @Operation(summary = "Get teacher task by id")
     public ResponseEntity<TaskResponse> getTeacherTaskById(@PathVariable Integer id) {
         return ResponseEntity.ok(taskService.getTask(id, true));

@@ -2,19 +2,18 @@ package org.example.dto.request.task;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
 @Schema(description = "Data for submit task")
 public class SubmitTaskRequest {
-    @NotNull
+    @NotEmpty
     @Schema(
-            description = "Task ID",
-            example = "123234132",
+            description = "Programming language",
+            example = "Java",
             requiredMode = Schema.RequiredMode.REQUIRED
     )
-    private Long id;
+    private String language;
 
     @NotEmpty
     @Schema(
@@ -22,5 +21,5 @@ public class SubmitTaskRequest {
             example = "print('Hello')",
             requiredMode = Schema.RequiredMode.REQUIRED
     )
-    private String code;
+    private String sourceCode;
 }

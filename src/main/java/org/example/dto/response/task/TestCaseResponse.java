@@ -2,18 +2,22 @@ package org.example.dto.response.task;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Schema(description = "Test data")
 public class TestCaseResponse {
     @Schema(
             description = "Task ID",
             example = "1231231"
     )
-    private Long id;
+    private Integer id;
 
     @Schema(
             description = "Test input data",

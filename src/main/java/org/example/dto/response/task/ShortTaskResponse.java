@@ -16,7 +16,7 @@ public class ShortTaskResponse {
             description = "Task ID",
             example = "1431342"
     )
-    private Long id;
+    private Integer id;
 
     @Schema(
             description = "Task title",
