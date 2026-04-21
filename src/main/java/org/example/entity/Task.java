@@ -34,7 +34,7 @@ public class Task {
     @JoinColumn(name = "author_id")
     private User author;
 
-    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<TestCase> testCases = new ArrayList<>();
 

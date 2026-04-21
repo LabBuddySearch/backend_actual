@@ -2,6 +2,7 @@ package org.example.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.example.dto.request.task.EditTaskRequest;
 import org.example.dto.request.task.NewTaskRequest;
 import org.example.dto.response.task.ListTasksResponse;
 import org.example.dto.response.task.TaskResponse;
@@ -27,7 +28,7 @@ public class TaskController {
 
     private final TaskServiceImpl taskService;
 
-    @PostMapping("/create")
+    @PostMapping("/teacher/create")
     @Operation(summary = "Create a new task (TEACHER only)")
     public ResponseEntity<Void> createTask(@Valid @RequestBody NewTaskRequest newTaskRequest,
                                            @AuthenticationPrincipal UserDetails userDetails) {
@@ -42,17 +43,31 @@ public class TaskController {
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Get student task by id")
+    @Operation(summary = "Get task by id (STUDENT only)")
     @PreAuthorize("hasRole('STUDENT')")
     public ResponseEntity<TaskResponse> getStudentTaskById(@PathVariable Integer id) {
         return ResponseEntity.ok(taskService.getTask(id, false));
     }
 
-    @GetMapping("/{id}/teacher")
-    @PreAuthorize("hasRole('TEACHER')")
-    @Operation(summary = "Get teacher task by id")
+    @GetMapping("/teacher/{id}")
+    @Operation(summary = "Get task by id (TEACHER only)")
     public ResponseEntity<TaskResponse> getTeacherTaskById(@PathVariable Integer id) {
         return ResponseEntity.ok(taskService.getTask(id, true));
+    }
+
+    @PutMapping("/teacher/{id}")
+    @Operation(summary = "Update task by id (TEACHER only)")
+    public ResponseEntity<Void> updateTask(@Valid @RequestBody EditTaskRequest editTaskRequest,
+                                           @PathVariable Integer id) {
+        taskService.updateTask(id, editTaskRequest);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @DeleteMapping("/teacher/{id}")
+    @Operation(summary = "Delete task by id")
+    public ResponseEntity<Void> deleteTask(@PathVariable Integer id) {
+        taskService.deleteTask(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
 

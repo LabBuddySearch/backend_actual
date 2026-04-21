@@ -34,7 +34,6 @@ public class TestCaseServiceImpl {
         TestCase testCase = testCaseRepository.findById(testCaseId)
                 .orElseThrow(() -> new NotFoundException("Test case with this ID was not found"));
         testCaseMapper.updateTestCaseFromDto(request, testCase);
-
     }
 
     @Transactional

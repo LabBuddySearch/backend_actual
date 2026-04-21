@@ -12,8 +12,8 @@ import java.util.List;
 @Schema(description = "Data for create new task")
 public class NewTaskRequest {
     @Schema(
-            description = "Task ID",
-            example = "123234132",
+            description = "Task title",
+            example = "Быстрая сортировка",
             requiredMode = Schema.RequiredMode.REQUIRED
     )
     @NotBlank
@@ -46,7 +46,7 @@ public class NewTaskRequest {
     @NotEmpty
     @Schema(
             description = "List of task tests",
-            example = "[{'inputData': 'ABBCABA', 'expectedOutput': 5, 'isHidden': true}]",
+            example = "[{\"inputData\": \"ABBCABA\", \"expectedOutput\": 5, \"isHidden\": true}]",
             requiredMode = Schema.RequiredMode.REQUIRED
     )
     private List<TestCaseRequest> testCases;

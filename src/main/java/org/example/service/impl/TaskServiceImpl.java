@@ -1,6 +1,7 @@
 package org.example.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.example.dto.request.task.EditTaskRequest;
 import org.example.dto.request.task.NewTaskRequest;
 import org.example.dto.response.task.ListTasksResponse;
 import org.example.dto.response.task.ShortTaskResponse;
@@ -18,6 +19,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -40,7 +42,6 @@ public class TaskServiceImpl {
         taskRepository.save(task);
     }
 
-    @Transactional
     @Cacheable(cacheNames = "tasks_list")
     public ListTasksResponse getTasks() {
         List<Task> tasks = taskRepository.findAll();
@@ -55,15 +56,30 @@ public class TaskServiceImpl {
                 .build();
     }
 
-    @Transactional
-    @Cacheable(cacheNames = "task_by_id", key = "#id")
+    @Cacheable(cacheNames = "task_by_id", key = "{#id, #teacher}")
     public TaskResponse getTask(Integer id, boolean teacher) {
         Task task = taskRepository.findById(id).orElseThrow(() -> new NotFoundException("Task does not exist"));
         TaskResponse taskResponse = taskMapper.toTaskResponse(task);
+        taskResponse.setAuthor(task.getAuthor().getFullName());
         taskResponse.setTestCases(testCaseMapper.toTestCaseResponseList(teacher ? task.getTestCases() :
                 task.getTestCases().stream().filter(t -> !t.getIsHidden()).toList()));
         return taskResponse;
     }
 
+    @Transactional
+    @CacheEvict(cacheNames = {"task_by_id", "tasks_list"}, allEntries = true)
+    public void updateTask(Integer id, EditTaskRequest updatedTask) {
+        Task task = taskRepository.findById(id).orElseThrow(() -> new NotFoundException("Task does not exist"));
+        task.getTestCases().clear();
+        List<TestCase> testCases = testCaseMapper.fromTestCaseRequestList(updatedTask.getTestCases());
+        testCases.forEach(task::addTestCase);
+        taskMapper.updateTask(updatedTask, task);
+    }
 
+    @Transactional
+    @CacheEvict(cacheNames = {"task_by_id", "tasks_list"}, allEntries = true)
+    public void deleteTask(Integer id) {
+        Task task = taskRepository.findById(id).orElseThrow(() -> new NotFoundException("Task does not exist"));
+        taskRepository.delete(task);
+    }
 }

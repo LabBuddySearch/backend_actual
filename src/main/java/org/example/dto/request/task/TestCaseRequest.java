@@ -2,13 +2,16 @@ package org.example.dto.request.task;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
 @Schema(description = "Test data")
+@NoArgsConstructor
+@AllArgsConstructor
 public class TestCaseRequest {
     @Schema(
             description = "Test input data",
