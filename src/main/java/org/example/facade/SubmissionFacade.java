@@ -7,8 +7,9 @@ import org.example.entity.Status;
 import org.example.entity.Submission;
 import org.example.entity.Task;
 import org.example.entity.User;
+import org.example.execution.service.ExecutionResultParserService;
 import org.example.execution.executor.ExecutionResult;
-import org.example.execution.factory.ExecutorFactory;
+import org.example.execution.factory.ExecutionStrategyFactory;
 import org.example.exception.NotFoundException;
 import org.example.mapper.SubmissionMapper;
 import org.example.repository.SubmissionRepository;
@@ -24,8 +25,9 @@ public class SubmissionFacade {
     private final UserRepository userRepository;
     private final TaskRepository taskRepository;
     private final SubmissionRepository submissionRepository;
-    private final ExecutorFactory executorFactory;
+    private final ExecutionStrategyFactory strategyFactory;
     private final SubmissionMapper submissionMapper;
+    private final ExecutionResultParserService resultParserService;
 
     /**
      * Оркестратор процесса отправки решения.
@@ -50,13 +52,39 @@ public class SubmissionFacade {
 
         submission = submissionRepository.save(submission);
 
-        ExecutionResult result = executorFactory
-                .getExecutor(submission.getLanguage())
-                .execute(submission.getSourceCode(), "", task.getTimeLimitMs() == null ? 2000 : task.getTimeLimitMs(),
-                        task.getMemoryLimitMb() == null ? 256 : task.getMemoryLimitMb());
+        Status finalStatus = Status.ACCEPTED;
+        ExecutionResult lastResult = null;
 
-        submission.setExecutionTimeMs((int) result.getExecutionTimeMs());
-        submission.setStatus(result.getExitCode() == 0 ? Status.ACCEPTED : Status.WRONG);
+        for (var testCase : task.getTestCases()) {
+            lastResult = strategyFactory
+                    .getStrategy(submission.getLanguage())
+                    .execute(
+                            submission.getSourceCode(),
+                            testCase.getInputData(),
+                            task.getTimeLimitMs() == null ? 2000 : task.getTimeLimitMs(),
+                            task.getMemoryLimitMb() == null ? 256 : task.getMemoryLimitMb()
+                    );
+
+            Status testStatus = resultParserService.resolveStatus(lastResult, testCase.getExpectedOutput());
+            if (testStatus != Status.ACCEPTED) {
+                finalStatus = testStatus;
+                break;
+            }
+        }
+
+        if (lastResult == null) {
+            finalStatus = Status.INTERNAL_ERROR;
+            submission.setStdout("");
+            submission.setStderr("No test cases found for task");
+            submission.setExecutionTimeMs(0);
+        } else {
+            submission.setStdout(lastResult.getStdout());
+            submission.setStderr(lastResult.getStderr());
+            submission.setExecutionTimeMs((int) lastResult.getExecutionTimeMs());
+        }
+
+        submission.setStatus(finalStatus);
+        submissionRepository.save(submission);
         return submissionMapper.toSubmissionResponse(submission);
     }
 

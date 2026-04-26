@@ -39,6 +39,10 @@ application:
     jwt:
       secret-key: "q52HnyQniFXrzzITVFBjFrZASQ6JtxmFVwHDVDCbCzo="
       expiration: 86400000
+  execution:
+    arena-image: codeguard-arena-java:latest
+    cpu-set: "0"
+    default-memory-mb: 128
 
 springdoc:
   swagger-ui:

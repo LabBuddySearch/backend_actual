@@ -41,11 +41,11 @@ public class SubmissionResponse {
             description = "Submission standard output",
             example = "Hello"
     )
-    private String stdout = "Hello";
+    private String stdout;
 
     @Schema(
             description = "Submission standard error",
             example = "0"
     )
-    private String stderr = "0";
+    private String stderr;
 }

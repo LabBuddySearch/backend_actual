@@ -40,6 +40,12 @@ public class Submission {
 
     private int executionTimeMs;
 
+    @Column(columnDefinition = "TEXT")
+    private String stdout;
+
+    @Column(columnDefinition = "TEXT")
+    private String stderr;
+
     @Column(insertable = false, updatable = false)
     private LocalDateTime createdAt;
 
