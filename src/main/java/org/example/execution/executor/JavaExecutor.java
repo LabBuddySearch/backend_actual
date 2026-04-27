@@ -112,7 +112,7 @@ public class JavaExecutor implements CodeExecutor {
                         }
                     }).awaitCompletion();
 
-            String status = exitCode == 0 ? "SUCCESS" : "FAILED";
+            String status = classifyError(stderr.toString());
             return ExecutionResult.builder()
                     .stdout(stdout.toString().trim())
                     .stderr(stderr.toString().trim())
@@ -163,5 +163,40 @@ public class JavaExecutor implements CodeExecutor {
         } catch (IOException ignored) {
             // Best-effort cleanup.
         }
+    }
+
+    private String classifyError(String stderr) {
+        if (stderr == null || stderr.isBlank()) {
+            return "SUCCESS";
+        }
+
+        String err = stderr.toLowerCase();
+
+        if (err.contains("error:") && !err.contains("exception")) {
+            return "COMPILE_ERROR";
+        }
+
+        if (err.contains("could not find or load main class") ||
+                err.contains("classnotfoundexception")) {
+            return "CLASS_NOT_FOUND";
+        }
+
+        if (err.contains("outofmemoryerror") ||
+                err.contains("java heap space") ||
+                err.contains("gc overhead limit exceeded")) {
+            return "MEMORY_LIMIT_EXCEEDED";
+        }
+
+        if (err.contains("killed") || err.contains("cannot allocate memory")) {
+            return "MEMORY_LIMIT_EXCEEDED";
+        }
+
+        if (err.contains("exception in thread") ||
+                err.contains("at ") ||
+                err.contains("caused by")) {
+            return "RUNTIME_ERROR";
+        }
+
+        return "FAILED";
     }
 }

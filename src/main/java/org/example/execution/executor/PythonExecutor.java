@@ -86,7 +86,8 @@ public class PythonExecutor implements CodeExecutor {
             if (exitCode == null) {
                 try {
                     dockerClient.killContainerCmd(containerId).exec();
-                } catch (Exception ignored) {}
+                } catch (Exception ignored) {
+                }
 
                 return ExecutionResult.builder()
                         .stdout("")
@@ -118,7 +119,7 @@ public class PythonExecutor implements CodeExecutor {
                         }
                     }).awaitCompletion();
 
-            String status = exitCode == 0 ? "SUCCESS" : "FAILED";
+            String status = classifyError(stderr.toString());
 
             return ExecutionResult.builder()
                     .stdout(stdout.toString().trim())
@@ -139,7 +140,8 @@ public class PythonExecutor implements CodeExecutor {
                     dockerClient.removeContainerCmd(containerId)
                             .withForce(true)
                             .exec();
-                } catch (Exception ignored) {}
+                } catch (Exception ignored) {
+                }
             }
 
             if (tempDir != null) {
@@ -159,9 +161,40 @@ public class PythonExecutor implements CodeExecutor {
                     .forEach(path -> {
                         try {
                             Files.deleteIfExists(path);
-                        } catch (IOException ignored) {}
+                        } catch (IOException ignored) {
+                        }
                     });
-        } catch (IOException ignored) {}
+        } catch (IOException ignored) {
+        }
+    }
+
+    private String classifyError(String stderr) {
+
+        if (stderr == null || stderr.isBlank()) {
+            return "SUCCESS";
+        }
+
+        String err = stderr.toLowerCase();
+
+        if (err.contains("syntaxerror") || err.contains("indentationerror")) {
+            return "SYNTAX_ERROR";
+        }
+
+        if (err.contains("modulenotfounderror") || err.contains("importerror")) {
+            return "IMPORT_ERROR";
+        }
+
+        if (err.contains("memoryerror") ||
+                err.contains("killed") ||                // container killed (OOM)
+                err.contains("cannot allocate memory")) {
+            return "MEMORY_LIMIT_EXCEEDED";
+        }
+
+        if (err.contains("traceback")) {
+            return "RUNTIME_ERROR";
+        }
+
+        return "SYSTEM_ERROR";
     }
 }
 
