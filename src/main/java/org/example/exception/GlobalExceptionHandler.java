@@ -109,7 +109,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }
 
-    // 9.
+    // 9. Ошибка аутентификации
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ErrorResponse> handleAuthenticationException(Exception ex) {
         ErrorResponse error = ErrorResponse.builder()
@@ -118,5 +118,16 @@ public class GlobalExceptionHandler {
                 .timestamp(LocalDateTime.now())
                 .build();
         return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+    }
+
+    // 10. Ошибка в Docker-контейнере
+    @ExceptionHandler(DockerExecutionException.class)
+    public ResponseEntity<ErrorResponse> handleDockerExecutionException(Exception ex) {
+        ErrorResponse error = ErrorResponse.builder()
+                .errorCode("DOCKER_EXECUTION_EXCEPTION")
+                .message("Ошибка в Docker-контейнере")
+                .timestamp(LocalDateTime.now())
+                .build();
+        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -21,6 +22,8 @@ public class PythonExecutor implements CodeExecutor {
 
     private static final String CONTAINER_WORK_DIR = "/workspace";
     private static final String PYTHON_FILE_NAME = "main.py";
+    private static final int MAX_DOCKER_RETRIES = 3;
+    private static final long RETRY_DELAY_MS = 200;
 
     private final DockerClient dockerClient;
 
@@ -32,6 +35,41 @@ public class PythonExecutor implements CodeExecutor {
 
     @Value("${application.execution.default-memory-mb:128}")
     private int defaultMemoryMb;
+
+    private <T> T withDockerRetry(Callable<T> action) {
+        int attempt = 0;
+
+        while (true) {
+            try {
+                return action.call();
+            } catch (Exception ex) {
+                attempt++;
+
+                if (!isRetryableDockerError(ex) || attempt >= MAX_DOCKER_RETRIES) {
+                    throw new DockerExecutionException(
+                            "Docker operation failed after " + attempt + " attempts: " + ex.getMessage()
+                    );
+                }
+
+                try {
+                    Thread.sleep(RETRY_DELAY_MS * attempt);
+                } catch (InterruptedException ignored) {
+                }
+            }
+        }
+    }
+
+    private boolean isRetryableDockerError(Exception ex) {
+        String msg = ex.getMessage() == null ? "" : ex.getMessage().toLowerCase();
+
+        return msg.contains("connection reset") ||
+                msg.contains("broken pipe") ||
+                msg.contains("timeout") ||
+                msg.contains("i/o error") ||
+                msg.contains("temporarily unavailable") ||
+                msg.contains("connection refused") ||
+                msg.contains("context deadline exceeded");
+    }
 
 
     @Override
@@ -70,18 +108,26 @@ public class PythonExecutor implements CodeExecutor {
             String command = "timeout " + Math.max(1, timeoutMs / 1000)
                     + " python3 " + PYTHON_FILE_NAME + " < input.txt";
 
-            CreateContainerResponse container = dockerClient.createContainerCmd(arenaImage)
-                    .withHostConfig(hostConfig)
-                    .withWorkingDir(CONTAINER_WORK_DIR)
-                    .withCmd("sh", "-c", command)
-                    .exec();
+            CreateContainerResponse container = withDockerRetry(() ->
+                    dockerClient.createContainerCmd(arenaImage)
+                            .withHostConfig(hostConfig)
+                            .withWorkingDir(CONTAINER_WORK_DIR)
+                            .withCmd("sh", "-c", command)
+                            .exec()
+            );
 
             containerId = container.getId();
-            dockerClient.startContainerCmd(containerId).exec();
+            String finalContainerId = containerId;
+            withDockerRetry(() -> {
+                dockerClient.startContainerCmd(finalContainerId).exec();
+                return null;
+            });
 
-            Integer exitCode = dockerClient.waitContainerCmd(containerId)
-                    .start()
-                    .awaitStatusCode(timeoutMs + 1_000L, TimeUnit.MILLISECONDS);
+            Integer exitCode = withDockerRetry(() ->
+                    dockerClient.waitContainerCmd(finalContainerId)
+                            .start()
+                            .awaitStatusCode(timeoutMs + 1_000L, TimeUnit.MILLISECONDS)
+            );
 
             if (exitCode == null) {
                 try {
@@ -102,22 +148,25 @@ public class PythonExecutor implements CodeExecutor {
             StringBuilder stdout = new StringBuilder();
             StringBuilder stderr = new StringBuilder();
 
-            dockerClient.logContainerCmd(containerId)
-                    .withStdOut(true)
-                    .withStdErr(true)
-                    .withTimestamps(false)
-                    .exec(new LogContainerResultCallback() {
-                        @Override
-                        public void onNext(Frame frame) {
-                            String payload = new String(frame.getPayload(), StandardCharsets.UTF_8);
-                            if (frame.getStreamType() == StreamType.STDERR) {
-                                stderr.append(payload);
-                            } else {
-                                stdout.append(payload);
+            withDockerRetry(() -> {
+                dockerClient.logContainerCmd(finalContainerId)
+                        .withStdOut(true)
+                        .withStdErr(true)
+                        .withTimestamps(false)
+                        .exec(new LogContainerResultCallback() {
+                            @Override
+                            public void onNext(Frame frame) {
+                                String payload = new String(frame.getPayload(), StandardCharsets.UTF_8);
+                                if (frame.getStreamType() == StreamType.STDERR) {
+                                    stderr.append(payload);
+                                } else {
+                                    stdout.append(payload);
+                                }
+                                super.onNext(frame);
                             }
-                            super.onNext(frame);
-                        }
-                    }).awaitCompletion();
+                        }).awaitCompletion();
+                return null;
+            });
 
             String status = classifyError(stderr.toString());
 
@@ -135,18 +184,7 @@ public class PythonExecutor implements CodeExecutor {
                     "Execution failed in docker sandbox: " + ex.getMessage()
             );
         } finally {
-            if (containerId != null) {
-                try {
-                    dockerClient.removeContainerCmd(containerId)
-                            .withForce(true)
-                            .exec();
-                } catch (Exception ignored) {
-                }
-            }
-
-            if (tempDir != null) {
-                cleanupTempDirectory(tempDir);
-            }
+            safeRemoveContainer(containerId);
         }
     }
 
@@ -165,6 +203,21 @@ public class PythonExecutor implements CodeExecutor {
                         }
                     });
         } catch (IOException ignored) {
+        }
+    }
+
+    private void safeRemoveContainer(String containerId) {
+        if (containerId == null) return;
+
+        try {
+            withDockerRetry(() -> {
+                dockerClient.removeContainerCmd(containerId)
+                        .withForce(true)
+                        .exec();
+                return null;
+            });
+        } catch (Exception ignored) {
+            // Final fallback — do not break execution flow
         }
     }
 

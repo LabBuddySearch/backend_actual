@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -28,6 +29,8 @@ public class JavaExecutor implements CodeExecutor {
 
     private static final Pattern PUBLIC_CLASS_PATTERN = Pattern.compile("public\\s+class\\s+([A-Za-z_$][A-Za-z\\d_$]*)");
     private static final String CONTAINER_WORK_DIR = "/workspace";
+    private static final int MAX_DOCKER_RETRIES = 3;
+    private static final long RETRY_DELAY_MS = 200;
 
     private final DockerClient dockerClient;
 
@@ -39,6 +42,42 @@ public class JavaExecutor implements CodeExecutor {
 
     @Value("${application.execution.default-memory-mb:128}")
     private int defaultMemoryMb;
+
+    // wrapper для перезапуска контейнера
+    private <T> T withDockerRetry(Callable<T> action) {
+        int attempt = 0;
+
+        while (true) {
+            try {
+                return action.call();
+            } catch (Exception ex) {
+                attempt++;
+
+                if (!isRetryableDockerError(ex) || attempt >= MAX_DOCKER_RETRIES) {
+                    throw new DockerExecutionException(
+                            "Docker operation failed after " + attempt + " attempts: " + ex.getMessage()
+                    );
+                }
+
+                try {
+                    Thread.sleep(RETRY_DELAY_MS * attempt);
+                } catch (InterruptedException ignored) {}
+            }
+        }
+    }
+
+    // проверка, является ли ошибка подходящей для перезапуска
+    private boolean isRetryableDockerError(Exception ex) {
+        String msg = ex.getMessage() == null ? "" : ex.getMessage().toLowerCase();
+
+        return msg.contains("connection reset") ||
+                msg.contains("broken pipe") ||
+                msg.contains("timeout") ||
+                msg.contains("i/o error") ||
+                msg.contains("temporarily unavailable") ||
+                msg.contains("connection refused") ||
+                msg.contains("context deadline exceeded");
+    }
 
     @Override
     public ExecutionResult execute(String sourceCode, String inputData, int timeoutMs, int memoryMb) {
@@ -63,18 +102,27 @@ public class JavaExecutor implements CodeExecutor {
             String command = "javac " + className + ".java && timeout "
                     + Math.max(1, timeoutMs / 1000) + " java " + className + " < input.txt";
 
-            CreateContainerResponse container = dockerClient.createContainerCmd(arenaImage)
-                    .withHostConfig(hostConfig)
-                    .withWorkingDir(CONTAINER_WORK_DIR)
-                    .withCmd("sh", "-c", command)
-                    .exec();
+            // создание контейнера, обернутое docker retry wrap
+            CreateContainerResponse container = withDockerRetry(() ->
+                    dockerClient.createContainerCmd(arenaImage)
+                            .withHostConfig(hostConfig)
+                            .withWorkingDir(CONTAINER_WORK_DIR)
+                            .withCmd("sh", "-c", command)
+                            .exec()
+            );
 
             containerId = container.getId();
-            dockerClient.startContainerCmd(containerId).exec();
+            String finalContainerId = containerId;
+            withDockerRetry(() -> {
+                dockerClient.startContainerCmd(finalContainerId).exec();
+                return null;
+            });
 
-            Integer exitCode = dockerClient.waitContainerCmd(containerId)
-                    .start()
-                    .awaitStatusCode(timeoutMs + 1_000L, TimeUnit.MILLISECONDS);
+            Integer exitCode = withDockerRetry(() ->
+                    dockerClient.waitContainerCmd(finalContainerId)
+                            .start()
+                            .awaitStatusCode(timeoutMs + 1_000L, TimeUnit.MILLISECONDS)
+            );
 
             if (exitCode == null) {
                 try {
@@ -95,22 +143,25 @@ public class JavaExecutor implements CodeExecutor {
             StringBuilder stdout = new StringBuilder();
             StringBuilder stderr = new StringBuilder();
 
-            dockerClient.logContainerCmd(containerId)
-                    .withStdOut(true)
-                    .withStdErr(true)
-                    .withTimestamps(false)
-                    .exec(new LogContainerResultCallback() {
-                        @Override
-                        public void onNext(Frame frame) {
-                            String payload = new String(frame.getPayload(), StandardCharsets.UTF_8);
-                            if (frame.getStreamType() == StreamType.STDERR) {
-                                stderr.append(payload);
-                            } else {
-                                stdout.append(payload);
+            withDockerRetry(() -> {
+                dockerClient.logContainerCmd(finalContainerId)
+                        .withStdOut(true)
+                        .withStdErr(true)
+                        .withTimestamps(false)
+                        .exec(new LogContainerResultCallback() {
+                            @Override
+                            public void onNext(Frame frame) {
+                                String payload = new String(frame.getPayload(), StandardCharsets.UTF_8);
+                                if (frame.getStreamType() == StreamType.STDERR) {
+                                    stderr.append(payload);
+                                } else {
+                                    stdout.append(payload);
+                                }
+                                super.onNext(frame);
                             }
-                            super.onNext(frame);
-                        }
-                    }).awaitCompletion();
+                        }).awaitCompletion();
+                return null;
+            });
 
             String status = classifyError(stderr.toString());
             return ExecutionResult.builder()
@@ -124,16 +175,7 @@ public class JavaExecutor implements CodeExecutor {
         } catch (Exception ex) {
             throw new DockerExecutionException("Execution failed in docker sandbox: " + ex.getMessage());
         } finally {
-            if (containerId != null) {
-                try {
-                    dockerClient.removeContainerCmd(containerId).withForce(true).exec();
-                } catch (Exception ignored) {
-                    // withAutoRemove уже чистит контейнер, это fallback.
-                }
-            }
-            if (tempDir != null) {
-                cleanupTempDirectory(tempDir);
-            }
+            safeRemoveContainer(containerId);
         }
     }
 
@@ -148,6 +190,21 @@ public class JavaExecutor implements CodeExecutor {
             return matcher.group(1);
         }
         throw new DockerExecutionException("Java source must contain a public class declaration");
+    }
+
+    private void safeRemoveContainer(String containerId) {
+        if (containerId == null) return;
+
+        try {
+            withDockerRetry(() -> {
+                dockerClient.removeContainerCmd(containerId)
+                        .withForce(true)
+                        .exec();
+                return null;
+            });
+        } catch (Exception ignored) {
+            // Final fallback — do not break execution flow
+        }
     }
 
     private void cleanupTempDirectory(Path tempDir) {
