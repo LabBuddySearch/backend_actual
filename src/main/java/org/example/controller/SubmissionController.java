@@ -1,6 +1,8 @@
 package org.example.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -20,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/tasks")
+@RequestMapping("/api/submissions")
 @RequiredArgsConstructor
 @Tag(name = "Submissions", description = "Submitting solutions for tasks")
 @SecurityRequirement(name = "bearerAuth")
@@ -28,8 +30,14 @@ public class SubmissionController {
 
     private final SubmissionFacade submissionFacade;
 
-    @PostMapping("/{taskId}/submit")
+    @PostMapping("/{taskId}")
     @Operation(summary = "Submit solution for a task (MVP)")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Решение принято для проверки"),
+            @ApiResponse(responseCode = "400", description = "Ошибка валидации, некорректный запрос"),
+            @ApiResponse(responseCode = "404", description = "Задача не найдена"),
+            @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    })
     public ResponseEntity<SubmissionResponse> submit(@PathVariable Integer taskId,
                                                      @Valid @RequestBody SubmitTaskRequest request,
                                                      @AuthenticationPrincipal UserDetails userDetails) {
@@ -37,8 +45,14 @@ public class SubmissionController {
         return ResponseEntity.status(HttpStatus.CREATED).body(submission);
     }
 
-    @GetMapping("/submit/{submitId}")
+    @GetMapping("/{id}")
     @Operation(summary = "Get solution for a task (MVP)")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Успешное получение результата"),
+            @ApiResponse(responseCode = "400", description = "Ошибка валидации, некорректный запрос"),
+            @ApiResponse(responseCode = "404", description = "Решение не найдено"),
+            @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    })
     public ResponseEntity<SubmissionResponse> get(@PathVariable Integer submitId,
                                                   @AuthenticationPrincipal UserDetails userDetails) {
         SubmissionResponse submission = submissionFacade.get(submitId);
