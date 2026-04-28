@@ -61,7 +61,8 @@ public class JavaExecutor implements CodeExecutor {
 
                 try {
                     Thread.sleep(RETRY_DELAY_MS * attempt);
-                } catch (InterruptedException ignored) {}
+                } catch (InterruptedException ignored) {
+                }
             }
         }
     }

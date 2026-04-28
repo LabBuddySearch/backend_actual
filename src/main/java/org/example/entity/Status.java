@@ -1,6 +1,7 @@
 package org.example.entity;
 
 public enum Status {
+    EMPTY_SOURCE,
     PENDING,
     ACCEPTED,
     WRONG_ANSWER,

@@ -1,5 +1,6 @@
 package org.example.execution.factory;
 
+import org.example.exception.NotFoundException;
 import org.example.execution.executor.CodeExecutor;
 import org.springframework.stereotype.Component;
 import java.util.List;
@@ -23,7 +24,7 @@ public class ExecutorFactory {
     public CodeExecutor getExecutor(String language) {
         CodeExecutor executor = executors.get(language.toUpperCase());
         if (executor == null) {
-            throw new UnsupportedOperationException("Язык " + language + " пока не поддерживается.");
+            throw new NotFoundException("Язык " + language + " пока не поддерживается.");
         }
         return executor;
     }

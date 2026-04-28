@@ -12,6 +12,7 @@ import org.example.dto.response.task.SubmissionResponse;
 import org.example.facade.SubmissionFacade;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -45,17 +46,32 @@ public class SubmissionController {
         return ResponseEntity.status(HttpStatus.CREATED).body(submission);
     }
 
-    @GetMapping("/{id}")
-    @Operation(summary = "Get solution for a task (MVP)")
+    @GetMapping("/teacher/{id}")
+    @Operation(summary = "Get solution for a task (MVP) (TEACHER ONLY)")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Успешное получение результата"),
             @ApiResponse(responseCode = "400", description = "Ошибка валидации, некорректный запрос"),
             @ApiResponse(responseCode = "404", description = "Решение не найдено"),
             @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
     })
-    public ResponseEntity<SubmissionResponse> get(@PathVariable Integer submitId,
-                                                  @AuthenticationPrincipal UserDetails userDetails) {
-        SubmissionResponse submission = submissionFacade.get(submitId);
+    @PreAuthorize("hasRole('TEACHER')")
+    public ResponseEntity<SubmissionResponse> getByTeacher(@PathVariable Integer submitId) {
+        SubmissionResponse submission = submissionFacade.get(submitId, true, null);
+        return ResponseEntity.status(HttpStatus.OK).body(submission);
+    }
+
+    @GetMapping("/student/{id}")
+    @Operation(summary = "Get solution for a task (MVP) (STUDENT ONLY)")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Успешное получение результата"),
+            @ApiResponse(responseCode = "400", description = "Ошибка валидации, некорректный запрос"),
+            @ApiResponse(responseCode = "404", description = "Решение не найдено"),
+            @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    })
+    @PreAuthorize("hasRole('STUDENT')")
+    public ResponseEntity<SubmissionResponse> getByStudent(@PathVariable Integer submitId,
+                                                           @AuthenticationPrincipal UserDetails userDetails) {
+        SubmissionResponse submission = submissionFacade.get(submitId, false, userDetails);
         return ResponseEntity.status(HttpStatus.OK).body(submission);
     }
 }

@@ -15,8 +15,11 @@ import org.example.mapper.SubmissionMapper;
 import org.example.repository.SubmissionRepository;
 import org.example.repository.TaskRepository;
 import org.example.repository.UserRepository;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Objects;
 
 @Component
 @RequiredArgsConstructor
@@ -36,6 +39,8 @@ public class SubmissionFacade {
      */
     @Transactional
     public SubmissionResponse submit(Integer taskId, String userEmail, SubmitTaskRequest request) {
+
+
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new NotFoundException("User does not exist"));
 
@@ -51,6 +56,10 @@ public class SubmissionFacade {
                 .build();
 
         submission = submissionRepository.save(submission);
+
+        if (request.getSourceCode().isEmpty()){
+            return submissionMapper.toSubmissionResponse(submission);
+        }
 
         Status finalStatus = Status.ACCEPTED;
         ExecutionResult lastResult = null;
@@ -88,10 +97,12 @@ public class SubmissionFacade {
         return submissionMapper.toSubmissionResponse(submission);
     }
 
-    public SubmissionResponse get(Integer submitId){
+    public SubmissionResponse get(Integer submitId, boolean teacher, UserDetails userDetails){
         Submission submission = submissionRepository.findById(submitId)
                 .orElseThrow(() -> new NotFoundException("Submit does not exist"));
-
+        if (!teacher && !submission.getUser().getEmail().equals(userDetails.getUsername())){
+            throw new NotFoundException("Submit not found");
+        }
         return submissionMapper.toSubmissionResponse(submission);
     }
 }
