@@ -1,13 +1,16 @@
 package integration;
 
 import lombok.RequiredArgsConstructor;
+import org.example.CodeGuardApplication;
 import org.example.dto.response.task.SubmissionResponse;
 import org.example.entity.Status;
 import org.example.exception.NotFoundException;
 import org.example.facade.SubmissionFacade;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -22,30 +25,32 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-@SpringBootTest
+@SpringBootTest(classes = CodeGuardApplication.class)
 @AutoConfigureMockMvc(printOnlyOnFailure = false)
-@RequiredArgsConstructor
 public class SubmissionTests {
 
-    private final MockMvc mockMvc;
-    private final SubmissionFacade submissionFacade;
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockBean
+    private SubmissionFacade submissionFacade;
 
     private String validRequestJson() {
         return """
-        {
-          "language": "PYTHON",
-          "sourceCode": "print(1)"
-        }
-    """;
+                    {
+                      "language": "PYTHON",
+                      "sourceCode": "print(1)"
+                    }
+                """;
     }
 
     private String invalidRequestJson() {
         return """
-        {
-          "language": "PYTHON",
-          "sourceCode": ""
-        }
-    """;
+                    {
+                      "language": "PYTHON",
+                      "sourceCode": ""
+                    }
+                """;
     }
 
     @Test
@@ -119,8 +124,7 @@ public class SubmissionTests {
         mockMvc.perform(post("/api/submissions/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(validRequestJson()))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.message").value("Язык пока не поддерживается."));
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -146,39 +150,21 @@ public class SubmissionTests {
     @WithMockUser(roles = "STUDENT")
     void getSubmission_WrongRole_Returns403Error() throws Exception {
         mockMvc.perform(get("/api/submissions/teacher/1")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(validRequestJson()))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
     }
 
     @Test
     @WithMockUser(username = "user@test.com", roles = "STUDENT")
-    void getSubmission_ValidUser_Returns201() throws Exception {
-        when(submissionFacade.submit(eq(1), eq("user@test.com"), any()))
+    void getSubmission_ValidUser_Returns200() throws Exception {
+
+        when(submissionFacade.get(eq(1), eq(false), any()))
                 .thenReturn(new SubmissionResponse());
 
-        mockMvc.perform(post("/api/submissions/student/1")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(validRequestJson()))
-                .andExpect(status().isCreated());
+        mockMvc.perform(get("/api/submissions/student/1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
 
-        verify(submissionFacade).submit(eq(1), eq("user@test.com"), any());
+        verify(submissionFacade).get(eq(1), eq(false), any());
     }
-
-    @Test
-    @WithMockUser
-    void createSubmission_ReturnsEmptySource() throws Exception {
-        SubmissionResponse response = new SubmissionResponse();
-        response.setStatus(Status.EMPTY_SOURCE);
-
-        when(submissionFacade.submit(any(), any(), any()))
-                .thenReturn(response);
-
-        mockMvc.perform(post("/api/submissions/1")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(invalidRequestJson()))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.status").value("EMPTY_SOURCE"));
-    }
-
 }

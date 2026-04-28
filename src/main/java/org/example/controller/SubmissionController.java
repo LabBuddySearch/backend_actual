@@ -55,8 +55,8 @@ public class SubmissionController {
             @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
     })
     @PreAuthorize("hasRole('TEACHER')")
-    public ResponseEntity<SubmissionResponse> getByTeacher(@PathVariable Integer submitId) {
-        SubmissionResponse submission = submissionFacade.get(submitId, true, null);
+    public ResponseEntity<SubmissionResponse> getByTeacher(@PathVariable Integer id) {
+        SubmissionResponse submission = submissionFacade.get(id, true, null);
         return ResponseEntity.status(HttpStatus.OK).body(submission);
     }
 
@@ -69,9 +69,9 @@ public class SubmissionController {
             @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
     })
     @PreAuthorize("hasRole('STUDENT')")
-    public ResponseEntity<SubmissionResponse> getByStudent(@PathVariable Integer submitId,
+    public ResponseEntity<SubmissionResponse> getByStudent(@PathVariable Integer id,
                                                            @AuthenticationPrincipal UserDetails userDetails) {
-        SubmissionResponse submission = submissionFacade.get(submitId, false, userDetails);
+        SubmissionResponse submission = submissionFacade.get(id, false, userDetails);
         return ResponseEntity.status(HttpStatus.OK).body(submission);
     }
 }
