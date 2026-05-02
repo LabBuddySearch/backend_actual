@@ -41,8 +41,9 @@ application:
       expiration: 86400000
   execution:
     arena-image: codeguard-arena-java:latest
+    python-image: codeguard-arena-python:latest
     cpu-set: "0"
-    default-memory-mb: 64
+    default-memory-mb: 128
 
 springdoc:
   swagger-ui:

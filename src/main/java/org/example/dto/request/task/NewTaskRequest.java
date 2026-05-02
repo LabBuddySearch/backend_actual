@@ -30,7 +30,7 @@ public class NewTaskRequest {
     @NotNull
     @Schema(
             description = "Task time limit in milliseconds",
-            example = "111112211",
+            example = "1000",
             requiredMode = Schema.RequiredMode.REQUIRED
     )
     private Integer timeLimitMs;
@@ -38,7 +38,7 @@ public class NewTaskRequest {
     @NotNull
     @Schema(
             description = "Task memory limit in Mb",
-            example = "10",
+            example = "64",
             requiredMode = Schema.RequiredMode.REQUIRED
     )
     private Integer memoryLimitMb;

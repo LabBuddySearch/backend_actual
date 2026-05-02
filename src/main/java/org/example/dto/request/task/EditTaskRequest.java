@@ -20,13 +20,13 @@ public class EditTaskRequest {
 
     @Schema(
             description = "Task time limit in milliseconds",
-            example = "111112211"
+            example = "1000"
     )
     private Integer timeLimitMs;
 
     @Schema(
             description = "Task memory limit in Mb",
-            example = "10"
+            example = "64"
     )
     private Integer memoryLimitMb;
 

@@ -28,5 +28,13 @@ services:
     profiles: ["build-only"]
     command: ["sh", "-c", "echo arena image built"]
 
+  execution_arena_python:
+    build:
+      context: .
+      dockerfile: docker/execution-arena-python/Dockerfile
+    image: codeguard-arena-python:latest
+    profiles: [ "build-only" ]
+    command: [ "sh", "-c", "echo python arena image built" ]
+
 volumes:
   postgres_data:

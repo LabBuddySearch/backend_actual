@@ -1,6 +1,7 @@
 package org.example.execution.factory;
 
 import org.example.exception.DockerExecutionException;
+import org.example.exception.NotFoundException;
 import org.example.execution.executor.CodeExecutor;
 import org.springframework.stereotype.Component;
 
@@ -23,13 +24,14 @@ public class ExecutionStrategyFactory {
     }
 
     public CodeExecutor getStrategy(String language) {
+        // Необходима ли данная проверка, если запрос, в котором не указан язык, отсеится на этапе валидации?
         if (language == null || language.isBlank()) {
             throw new DockerExecutionException("Programming language must be provided");
         }
 
         CodeExecutor executor = executors.get(language.toUpperCase());
         if (executor == null) {
-            throw new DockerExecutionException("Language " + language + " is not supported yet");
+            throw new NotFoundException("Language " + language + " is not supported yet");
         }
         return executor;
     }
