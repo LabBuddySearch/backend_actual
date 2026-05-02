@@ -10,7 +10,7 @@ public class SubmitTaskRequest {
     @NotEmpty
     @Schema(
             description = "Programming language",
-            example = "Java",
+            example = "PYTHON",
             requiredMode = Schema.RequiredMode.REQUIRED
     )
     private String language;
@@ -18,7 +18,7 @@ public class SubmitTaskRequest {
     @NotEmpty
     @Schema(
             description = "Code with the solution",
-            example = "print('Hello')",
+            example = "print(\"Hello\")",
             requiredMode = Schema.RequiredMode.REQUIRED
     )
     private String sourceCode;

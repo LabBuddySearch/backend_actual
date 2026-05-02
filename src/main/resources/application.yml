@@ -42,7 +42,7 @@ application:
   execution:
     arena-image: codeguard-arena-java:latest
     cpu-set: "0"
-    default-memory-mb: 128
+    default-memory-mb: 64
 
 springdoc:
   swagger-ui:
@@ -53,5 +53,5 @@ springdoc:
 logging:
   level:
 #    root: DEBUG
-    org.springframework.security: DEBUG
+    org.springf ramework.security: DEBUG
     org.hibernate.SQL: DEBUG

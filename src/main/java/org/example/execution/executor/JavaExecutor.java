@@ -83,7 +83,7 @@ public class JavaExecutor implements CodeExecutor {
     @Override
     public ExecutionResult execute(String sourceCode, String inputData, int timeoutMs, int memoryMb) {
         String className = extractClassName(sourceCode);
-        int memoryLimitMb = memoryMb > 0 ? memoryMb : defaultMemoryMb;
+        int memoryLimitMb = memoryMb > 31 ? memoryMb : defaultMemoryMb;
         long startedAt = System.currentTimeMillis();
         Path tempDir = null;
         String containerId = null;
@@ -94,7 +94,6 @@ public class JavaExecutor implements CodeExecutor {
             Files.writeString(tempDir.resolve("input.txt"), inputData == null ? "" : inputData, StandardCharsets.UTF_8);
 
             HostConfig hostConfig = HostConfig.newHostConfig()
-                    .withAutoRemove(true)
                     .withMemory((long) memoryLimitMb * 1024 * 1024)
                     .withCpusetCpus(cpuSet)
                     .withNetworkMode("none")
