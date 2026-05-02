@@ -128,12 +128,11 @@ public class PythonExecutor implements CodeExecutor {
                             .awaitStatusCode(timeoutMs + 1_000L, TimeUnit.MILLISECONDS)
             );
 
-            if (exitCode == null) {
+            if (exitCode == null || exitCode == 124) {
                 try {
                     dockerClient.killContainerCmd(containerId).exec();
                 } catch (Exception ignored) {
                 }
-
                 return ExecutionResult.builder()
                         .stdout("")
                         .stderr("Time limit exceeded")

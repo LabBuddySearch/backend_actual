@@ -73,7 +73,6 @@ public class SubmissionFacade {
                             task.getTimeLimitMs() == null ? 2000 : task.getTimeLimitMs(),
                             task.getMemoryLimitMb() == null ? 256 : task.getMemoryLimitMb()
                     );
-
             Status testStatus = resultParserService.resolveStatus(lastResult, testCase.getExpectedOutput());
             if (testStatus != Status.ACCEPTED) {
                 finalStatus = testStatus;
