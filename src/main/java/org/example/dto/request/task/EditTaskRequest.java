@@ -26,13 +26,13 @@ public class EditTaskRequest {
 
     @Schema(
             description = "Task memory limit in Mb",
-            example = "64"
+            example = "128"
     )
     private Integer memoryLimitMb;
 
     @Schema(
             description = "List of task tests",
-            example = "[{\"inputData\": \"ABBCABA\", \"expectedOutput\": 5, \"isHidden\": true}]"
+            example = "[{\"inputData\": \"ABBCABA\", \"expectedOutput\": \"text\", \"isHidden\": true}]"
     )
     private List<TestCaseRequest> testCases;
 }

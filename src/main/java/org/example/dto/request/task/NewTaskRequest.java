@@ -38,7 +38,7 @@ public class NewTaskRequest {
     @NotNull
     @Schema(
             description = "Task memory limit in Mb",
-            example = "64",
+            example = "128",
             requiredMode = Schema.RequiredMode.REQUIRED
     )
     private Integer memoryLimitMb;
@@ -46,7 +46,7 @@ public class NewTaskRequest {
     @NotEmpty
     @Schema(
             description = "List of task tests",
-            example = "[{\"inputData\": \"ABBCABA\", \"expectedOutput\": 5, \"isHidden\": true}]",
+            example = "[{\"inputData\": \"ABBCABA\", \"expectedOutput\": \"text\", \"isHidden\": true}]",
             requiredMode = Schema.RequiredMode.REQUIRED
     )
     private List<TestCaseRequest> testCases;

@@ -74,7 +74,7 @@ public class PythonExecutor implements CodeExecutor {
 
     @Override
     public ExecutionResult execute(String sourceCode, String inputData, int timeoutMs, int memoryMb) {
-        int memoryLimitMb = memoryMb > 31 ? memoryMb : defaultMemoryMb;
+        int memoryLimitMb = memoryMb > 127 ? memoryMb : defaultMemoryMb;
         long startedAt = System.currentTimeMillis();
 
         Path tempDir = null;

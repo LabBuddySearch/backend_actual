@@ -1,6 +1,8 @@
 package org.example.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -24,7 +26,13 @@ public class TestCaseController {
     private final TestCaseServiceImpl testCaseService;
 
     @PostMapping("/{taskId}")
-    @Operation(summary = "Create a new test case (TEACHER only)")
+    @Operation(summary = "Create a new test case (TEACHER only)",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody( // Для того чтобы example был не в списке
+                    required = true,
+                    content = @Content(
+                            schema = @Schema(implementation = TestCaseRequest.class)
+                    )
+            ))
     public ResponseEntity<Void> createTestCase(@Valid @RequestBody TestCaseRequest testCaseRequest,
                                                @PathVariable Integer taskId) {
         testCaseService.createTestCase(testCaseRequest, taskId);

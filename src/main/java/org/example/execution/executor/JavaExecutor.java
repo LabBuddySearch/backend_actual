@@ -83,7 +83,7 @@ public class JavaExecutor implements CodeExecutor {
     @Override
     public ExecutionResult execute(String sourceCode, String inputData, int timeoutMs, int memoryMb) {
         String className = extractClassName(sourceCode);
-        int memoryLimitMb = memoryMb > 31 ? memoryMb : defaultMemoryMb;
+        int memoryLimitMb = memoryMb > 127 ? memoryMb : defaultMemoryMb;
         long startedAt = System.currentTimeMillis();
         Path tempDir = null;
         String containerId = null;

@@ -2,6 +2,7 @@ package org.example.dto.request.task;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,7 +24,7 @@ public class TestCaseRequest {
 
     @Schema(
             description = "Expected test output",
-            example = "5",
+            example = "text",
             requiredMode = Schema.RequiredMode.REQUIRED
     )
     @NotBlank
@@ -34,6 +35,6 @@ public class TestCaseRequest {
             example = "false",
             requiredMode = Schema.RequiredMode.REQUIRED
     )
-    @NotBlank
+    @NotNull
     private Boolean isHidden;
 }
