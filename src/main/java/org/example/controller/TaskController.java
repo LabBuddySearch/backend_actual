@@ -45,14 +45,15 @@ public class TaskController {
     @GetMapping("/{id}")
     @Operation(summary = "Get task by id (STUDENT only)")
     @PreAuthorize("hasRole('STUDENT')")
-    public ResponseEntity<TaskResponse> getStudentTaskById(@PathVariable Integer id) {
-        return ResponseEntity.ok(taskService.getTask(id, false));
+    public ResponseEntity<TaskResponse> getStudentTaskById(@PathVariable Integer id,
+                                                           @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(taskService.getTask(id, false, userDetails.getUsername()));
     }
 
     @GetMapping("/teacher/{id}")
     @Operation(summary = "Get task by id (TEACHER only)")
     public ResponseEntity<TaskResponse> getTeacherTaskById(@PathVariable Integer id) {
-        return ResponseEntity.ok(taskService.getTask(id, true));
+        return ResponseEntity.ok(taskService.getTask(id, true, null));
     }
 
     @PutMapping("/teacher/{id}")

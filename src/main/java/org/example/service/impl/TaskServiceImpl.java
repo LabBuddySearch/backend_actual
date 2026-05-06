@@ -10,6 +10,7 @@ import org.example.entity.Task;
 import org.example.entity.TestCase;
 import org.example.entity.User;
 import org.example.exception.NotFoundException;
+import org.example.mapper.SubmissionMapper;
 import org.example.mapper.TaskMapper;
 import org.example.mapper.TestCaseMapper;
 import org.example.repository.TaskRepository;
@@ -30,6 +31,7 @@ public class TaskServiceImpl {
     private final UserRepository userRepository;
     private final TaskMapper taskMapper;
     private final TestCaseMapper testCaseMapper;
+    private final SubmissionMapper submissionMapper;
 
     @Transactional
     @CacheEvict(cacheNames = {"tasks_list", "task_by_id"}, allEntries = true)
@@ -57,12 +59,17 @@ public class TaskServiceImpl {
     }
 
     @Cacheable(cacheNames = "task_by_id", key = "{#id, #teacher}")
-    public TaskResponse getTask(Integer id, boolean teacher) {
+    public TaskResponse getTask(Integer id, boolean teacher, String email) {
         Task task = taskRepository.findById(id).orElseThrow(() -> new NotFoundException("Task does not exist"));
         TaskResponse taskResponse = taskMapper.toTaskResponse(task);
         taskResponse.setAuthor(task.getAuthor().getFullName());
         taskResponse.setTestCases(testCaseMapper.toTestCaseResponseList(teacher ? task.getTestCases() :
                 task.getTestCases().stream().filter(t -> !t.getIsHidden()).toList()));
+        if (!teacher) {
+            taskResponse.setSubmissions(submissionMapper.toSubmissionListResponse(task.getSubmissions().stream()
+                    .filter(s -> s.getUser().getEmail().equals(email))
+                    .toList()));
+        }
         return taskResponse;
     }
 

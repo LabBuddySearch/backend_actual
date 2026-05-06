@@ -64,5 +64,20 @@ public class TaskResponse {
     )
     private List<TestCaseResponse> testCases;
 
-
+    @Schema(
+            description = "List of submissions",
+            example = """
+                    [
+                        {
+                          "id": 1111,
+                          "status": "WRONG",
+                          "executionTimeMs": 11121,
+                          "language": "Java",
+                          "stdout": "Hello",
+                          "stderr": "0"
+                        }
+                    ]
+                    """
+    )
+    private List<SubmissionResponse> submissions;
 }
