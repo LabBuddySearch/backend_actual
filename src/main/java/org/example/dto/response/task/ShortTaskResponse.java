@@ -25,8 +25,8 @@ public class ShortTaskResponse {
     private String title;
 
     @Schema(
-            description = "Task author",
-            example = "Иван Иванов"
+            description = "Email автора задачи (для UI: фильтр «мои задачи» = author === email текущего TEACHER)",
+            example = "teacher@university.edu"
     )
     private String author;
 }

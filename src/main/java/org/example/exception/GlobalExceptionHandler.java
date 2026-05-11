@@ -18,6 +18,16 @@ import java.util.stream.Collectors;
 public class GlobalExceptionHandler {
 
 
+    @ExceptionHandler(RateLimitExceededException.class)
+    public ResponseEntity<ErrorResponse> handleRateLimit(RateLimitExceededException ex) {
+        ErrorResponse error = ErrorResponse.builder()
+                .errorCode("RATE_LIMIT_EXCEEDED")
+                .message(ex.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+        return new ResponseEntity<>(error, HttpStatus.TOO_MANY_REQUESTS);
+    }
+
     @ExceptionHandler(CodeGuardException.class)
     public ResponseEntity<ErrorResponse> handleCodeGuardException(CodeGuardException ex) {
         ErrorResponse error = ErrorResponse.builder()

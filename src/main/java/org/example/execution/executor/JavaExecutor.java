@@ -176,6 +176,9 @@ public class JavaExecutor implements CodeExecutor {
             throw new DockerExecutionException("Execution failed in docker sandbox: " + ex.getMessage());
         } finally {
             safeRemoveContainer(containerId);
+            if (tempDir != null) {
+                cleanupTempDirectory(tempDir);
+            }
         }
     }
 

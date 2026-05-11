@@ -15,11 +15,10 @@ import org.example.mapper.SubmissionMapper;
 import org.example.repository.SubmissionRepository;
 import org.example.repository.TaskRepository;
 import org.example.repository.UserRepository;
+import org.example.security.SubmissionRateLimiter;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Objects;
 
 @Component
 @RequiredArgsConstructor
@@ -31,15 +30,17 @@ public class SubmissionFacade {
     private final ExecutionStrategyFactory strategyFactory;
     private final SubmissionMapper submissionMapper;
     private final ExecutionResultParserService resultParserService;
+    private final SubmissionRateLimiter submissionRateLimiter;
 
     /**
      * Оркестратор процесса отправки решения.
-     * Сейчас MVP: сохраняем submission и запускаем выполнение синхронно (мок-исполнитель уже есть).
-     * Позже: очередь, sandbox, security-логи, античит, ретраи.
+     * MVP: сохраняем submission и запускаем выполнение синхронно в Docker-арене.
+     * Следующий этап: асинхронная очередь (submit возвращает id, poll по статусу).
      */
     @Transactional
     public SubmissionResponse submit(Integer taskId, String userEmail, SubmitTaskRequest request) {
 
+        submissionRateLimiter.check(userEmail);
 
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new NotFoundException("User does not exist"));
@@ -57,7 +58,13 @@ public class SubmissionFacade {
 
         submission = submissionRepository.save(submission);
 
-        if (request.getSourceCode().isEmpty()){
+        String source = request.getSourceCode() == null ? "" : request.getSourceCode();
+        if (source.isBlank()) {
+            submission.setStatus(Status.EMPTY_SOURCE);
+            submission.setExecutionTimeMs(0);
+            submission.setStdout("");
+            submission.setStderr("");
+            submissionRepository.save(submission);
             return submissionMapper.toSubmissionResponse(submission);
         }
 

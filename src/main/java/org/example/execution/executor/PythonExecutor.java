@@ -183,6 +183,9 @@ public class PythonExecutor implements CodeExecutor {
             );
         } finally {
             safeRemoveContainer(containerId);
+            if (tempDir != null) {
+                cleanupTempDirectory(tempDir);
+            }
         }
     }
 

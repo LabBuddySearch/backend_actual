@@ -54,7 +54,7 @@ public class SubmissionTests {
     }
 
     @Test
-    @WithMockUser(username = "user@test.com")
+    @WithMockUser(username = "user@test.com", roles = "STUDENT")
     void createSubmission_ReturnsCompilationError() throws Exception {
         SubmissionResponse response = new SubmissionResponse();
         response.setStatus(Status.COMPILATION_ERROR);
@@ -71,7 +71,7 @@ public class SubmissionTests {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "STUDENT")
     void createSubmission_ReturnsRuntimeError() throws Exception {
         SubmissionResponse response = new SubmissionResponse();
         response.setStatus(Status.RUNTIME_ERROR);
@@ -88,7 +88,7 @@ public class SubmissionTests {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "STUDENT")
     void createSubmission_ReturnsTimeLimitExceeded() throws Exception {
         SubmissionResponse response = new SubmissionResponse();
         response.setStatus(Status.TIME_LIMIT_EXCEEDED);
@@ -104,7 +104,7 @@ public class SubmissionTests {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "STUDENT")
     void createSubmission_WrongTaskId_Returns404Error() throws Exception {
         when(submissionFacade.submit(any(), any(), any()))
                 .thenThrow(new NotFoundException("Task does not exist"));
@@ -116,7 +116,7 @@ public class SubmissionTests {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "STUDENT")
     void createSubmission_WrongLanguage_Returns404Error() throws Exception {
         when(submissionFacade.submit(any(), any(), any()))
                 .thenThrow(new NotFoundException("Язык пока не поддерживается."));
@@ -128,7 +128,7 @@ public class SubmissionTests {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "STUDENT")
     void createSubmission_InvalidRequest_Returns400Error() throws Exception {
         String invalidJson = "{}";
 
@@ -144,6 +144,15 @@ public class SubmissionTests {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(validRequestJson()))
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser(roles = "TEACHER")
+    void createSubmission_Teacher_Returns403() throws Exception {
+        mockMvc.perform(post("/api/submissions/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(validRequestJson()))
+                .andExpect(status().isForbidden());
     }
 
     @Test

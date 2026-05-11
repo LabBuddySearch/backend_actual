@@ -20,8 +20,8 @@ public class SubmissionResponse {
     private Integer id;
 
     @Schema(
-            description = "Submission status",
-            example = "WRONG"
+            description = "Вердикт проверки (см. README / документацию по статусам)",
+            example = "WRONG_ANSWER"
     )
     private Status status;
 

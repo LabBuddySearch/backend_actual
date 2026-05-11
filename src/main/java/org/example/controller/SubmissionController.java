@@ -32,11 +32,15 @@ public class SubmissionController {
     private final SubmissionFacade submissionFacade;
 
     @PostMapping("/{taskId}")
-    @Operation(summary = "Submit solution for a task (MVP)")
+    @PreAuthorize("hasRole('STUDENT')")
+    @Operation(summary = "Submit solution for a task (MVP, синхронное исполнение)")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Решение принято для проверки"),
+            @ApiResponse(responseCode = "201", description = "Проверка завершена, в теле — итоговый вердикт"),
             @ApiResponse(responseCode = "400", description = "Ошибка валидации, некорректный запрос"),
-            @ApiResponse(responseCode = "404", description = "Задача не найдена"),
+            @ApiResponse(responseCode = "401", description = "Нет или невалидный JWT"),
+            @ApiResponse(responseCode = "403", description = "Нужна роль STUDENT"),
+            @ApiResponse(responseCode = "404", description = "Задача или язык не найдены"),
+            @ApiResponse(responseCode = "429", description = "Превышен лимит отправок (см. application.rate-limit)"),
             @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
     })
     public ResponseEntity<SubmissionResponse> submit(@PathVariable Integer taskId,

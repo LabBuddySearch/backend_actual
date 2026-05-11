@@ -12,8 +12,15 @@ public class ExecutionResultParserService {
         if (result.isTimedOut()) {
             return Status.TIME_LIMIT_EXCEEDED;
         }
+        String execStatus = result.getStatus() == null ? "" : result.getStatus();
+        if ("COMPILE_ERROR".equals(execStatus) || "SYNTAX_ERROR".equals(execStatus)) {
+            return Status.COMPILATION_ERROR;
+        }
         if (result.getExitCode() != 0) {
-            if (result.getStderr() != null && result.getStderr().contains("error:")) {
+            if ("MEMORY_LIMIT_EXCEEDED".equals(execStatus)) {
+                return Status.RUNTIME_ERROR;
+            }
+            if (looksLikeJavaCompileError(result.getStderr())) {
                 return Status.COMPILATION_ERROR;
             }
             return Status.RUNTIME_ERROR;
@@ -22,6 +29,13 @@ public class ExecutionResultParserService {
             return Status.WRONG_ANSWER;
         }
         return Status.ACCEPTED;
+    }
+
+    private boolean looksLikeJavaCompileError(String stderr) {
+        if (stderr == null || stderr.isBlank()) {
+            return false;
+        }
+        return stderr.contains("error:") && !stderr.toLowerCase().contains("exception in thread");
     }
 
     public void enrichResponse(SubmissionResponse response, ExecutionResult result) {
