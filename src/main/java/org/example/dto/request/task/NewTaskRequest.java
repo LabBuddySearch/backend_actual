@@ -14,8 +14,8 @@ import java.util.List;
 @Schema(description = "Data for create new task")
 public class NewTaskRequest {
     @Schema(
-            description = "Task ID",
-            example = "123234132",
+            description = "Task title",
+            example = "Быстрая сортировка",
             requiredMode = Schema.RequiredMode.REQUIRED
     )
     @NotBlank
@@ -32,7 +32,7 @@ public class NewTaskRequest {
     @NotNull
     @Schema(
             description = "Task time limit in milliseconds",
-            example = "111112211",
+            example = "1000",
             requiredMode = Schema.RequiredMode.REQUIRED
     )
     private Integer timeLimitMs;
@@ -40,7 +40,7 @@ public class NewTaskRequest {
     @NotNull
     @Schema(
             description = "Task memory limit in Mb",
-            example = "10",
+            example = "128",
             requiredMode = Schema.RequiredMode.REQUIRED
     )
     private Integer memoryLimitMb;
@@ -60,7 +60,7 @@ public class NewTaskRequest {
     @NotEmpty
     @Schema(
             description = "List of task tests",
-            example = "[{'inputData': 'ABBCABA', 'expectedOutput': 5, 'isHidden': true}]",
+            example = "[{\"inputData\": \"ABBCABA\", \"expectedOutput\": \"text\", \"isHidden\": true}]",
             requiredMode = Schema.RequiredMode.REQUIRED
     )
     private List<TestCaseRequest> testCases;

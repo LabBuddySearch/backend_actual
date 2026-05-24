@@ -11,7 +11,7 @@ import org.example.entity.User;
 import org.example.exception.CodeGuardException;
 import org.example.exception.NotFoundException;
 import org.example.execution.executor.ExecutionResult;
-import org.example.execution.factory.ExecutorFactory;
+import org.example.execution.factory.ExecutionStrategyFactory;
 import org.example.repository.SubmissionRepository;
 import org.example.repository.TaskRepository;
 import org.example.repository.UserRepository;
@@ -31,7 +31,7 @@ public class SubmissionFacade {
     private final UserRepository userRepository;
     private final TaskRepository taskRepository;
     private final SubmissionRepository submissionRepository;
-    private final ExecutorFactory executorFactory;
+    private final ExecutionStrategyFactory executionStrategyFactory;
     private final TaskServiceImpl taskService;
 
     @Transactional
@@ -52,13 +52,13 @@ public class SubmissionFacade {
         int maxAttempts = task.getMaxAttempts() == null ? 3 : task.getMaxAttempts();
         long usedBefore = submissionRepository.countByUser_IdAndTask_Id(user.getId(), task.getId());
 
-        ExecutionResult compileProbe = executorFactory
-                .getExecutor(request.getLanguage())
+        ExecutionResult compileProbe = executionStrategyFactory
+                .getStrategy(request.getLanguage())
                 .execute(request.getSourceCode(), "", task.getTimeLimitMs() == null ? 2000 : task.getTimeLimitMs(),
                         task.getMemoryLimitMb() == null ? 256 : task.getMemoryLimitMb());
 
         if (compileProbe.getExitCode() != 0 || (compileProbe.getStderr() != null && !compileProbe.getStderr().isBlank())) {
-            return saveSubmission(user, task, request, Status.WRONG, compileProbe, true, null,
+            return saveSubmission(user, task, request, Status.COMPILATION_ERROR, compileProbe, true, null,
                     (int) usedBefore + 1, maxAttempts,
                     compileProbe.getStderr() != null ? compileProbe.getStderr() : "Синтаксическая ошибка в коде.");
         }
@@ -72,8 +72,8 @@ public class SubmissionFacade {
         ExecutionResult lastRun = compileProbe;
         for (int i = 0; i < tests.size(); i++) {
             TestCase testCase = tests.get(i);
-            lastRun = executorFactory
-                    .getExecutor(request.getLanguage())
+            lastRun = executionStrategyFactory
+                    .getStrategy(request.getLanguage())
                     .execute(
                             request.getSourceCode(),
                             testCase.getInputData(),
@@ -93,7 +93,7 @@ public class SubmissionFacade {
         }
 
         boolean passed = failedIndex < 0;
-        Status status = passed ? Status.ACCEPTED : Status.WRONG;
+        Status status = passed ? Status.ACCEPTED : Status.WRONG_ANSWER;
         String message = passed
                 ? "Все тесты пройдены успешно."
                 : "Неверный ответ на тесте #" + failedIndex + ".";
