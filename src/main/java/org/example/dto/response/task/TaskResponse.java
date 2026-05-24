@@ -6,6 +6,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import org.example.entity.TaskCategory;
+
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -50,6 +53,12 @@ public class TaskResponse {
     )
     private Integer memoryLimitMb;
 
+    private LocalDateTime deadlineAt;
+
+    private Integer maxAttempts;
+
+    private TaskCategory category;
+
     @Schema(
             description = "List of task tests",
             example = """
@@ -64,5 +73,12 @@ public class TaskResponse {
     )
     private List<TestCaseResponse> testCases;
 
+    private Integer assignedGroupId;
+
+    private Integer assignedStudentId;
+
+    private Boolean assignToAllTeacherGroups;
+
+    private StudentTaskProgressResponse studentProgress;
 
 }

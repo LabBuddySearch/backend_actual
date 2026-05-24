@@ -24,4 +24,8 @@ public class Group {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "teacher_id")
     private User teacher;
+
+    @Builder.Default
+    @Column(nullable = false)
+    private Boolean active = true;
 }

@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 
@@ -51,5 +52,6 @@ public class RegisterRequest {
             example = "БПИ-2301",
             requiredMode = Schema.RequiredMode.REQUIRED
     )
-    private String student_group;
+    @JsonProperty("student_group")
+    private String studentGroup;
 }

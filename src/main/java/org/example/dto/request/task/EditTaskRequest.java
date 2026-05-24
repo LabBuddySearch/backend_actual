@@ -3,7 +3,9 @@ package org.example.dto.request.task;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import org.example.entity.TaskCategory;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -15,7 +17,7 @@ public class EditTaskRequest {
             example = "123234132",
             requiredMode = Schema.RequiredMode.REQUIRED
     )
-    private Long id;
+    private Integer id;
 
     @Schema(
             description = "New task description",
@@ -35,6 +37,12 @@ public class EditTaskRequest {
     )
     private Integer memoryLimitMb;
 
+    private LocalDateTime deadlineAt;
+
+    private Integer maxAttempts;
+
+    private TaskCategory category;
+
     @Schema(
             description = "List of task tests",
             example = """
@@ -48,4 +56,13 @@ public class EditTaskRequest {
                     """
     )
     private List<TestCaseRequest> testCases;
+
+    private Integer assignedGroupId;
+
+    private Integer assignedStudentId;
+
+    /** When true, removes group/student assignment (all students see the task). */
+    private Boolean clearAssignment;
+
+    private Boolean assignToAllTeacherGroups;
 }

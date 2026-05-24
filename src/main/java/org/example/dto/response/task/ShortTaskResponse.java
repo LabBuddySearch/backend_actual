@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.example.entity.TaskCategory;
 
 @Data
 @Builder
@@ -29,4 +30,11 @@ public class ShortTaskResponse {
             example = "Иван Иванов"
     )
     private String author;
+
+    private TaskCategory category;
+
+    /**
+     * SOLVED | NOT_STARTED | IN_PROGRESS | FAILED — только для списка студента.
+     */
+    private String studentStatus;
 }

@@ -31,6 +31,6 @@ public class TestCaseRequest {
             example = "false",
             requiredMode = Schema.RequiredMode.REQUIRED
     )
-    @NotBlank
+    @NotNull
     private Boolean isHidden;
 }

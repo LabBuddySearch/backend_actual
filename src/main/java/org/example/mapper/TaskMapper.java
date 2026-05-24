@@ -14,15 +14,21 @@ import org.mapstruct.ReportingPolicy;
 public interface TaskMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "author", ignore = true)
+    @Mapping(target = "assignedGroup", ignore = true)
+    @Mapping(target = "assignedStudent", ignore = true)
     @Mapping(target = "testCases", ignore = true)
     @Mapping(target = "submissions", ignore = true)
     Task fromNewTaskRequest(NewTaskRequest newTaskRequest);
 
     @Mapping(target = "author", ignore = true)
+    @Mapping(target = "assignedGroupId", ignore = true)
+    @Mapping(target = "assignedStudentId", ignore = true)
     @Mapping(target = "testCases", ignore = true)
+    @Mapping(target = "studentProgress", ignore = true)
     TaskResponse toTaskResponse(Task task);
 
     @Mapping(target = "author", ignore = true)
+    @Mapping(target = "studentStatus", ignore = true)
     ShortTaskResponse toShortTaskResponse(Task task);
 
 }

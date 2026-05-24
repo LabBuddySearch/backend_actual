@@ -13,39 +13,16 @@ import org.example.entity.Status;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SubmissionResponse {
-    @Schema(
-            description = "Submission ID",
-            example = "1111"
-    )
     private Integer id;
-
-    @Schema(
-            description = "Submission status",
-            example = "WRONG"
-    )
     private Status status;
-
-    @Schema(
-            description = "Submission execution time in milliseconds",
-            example = "11121"
-    )
     private int executionTimeMs;
-
-    @Schema(
-            description = "Submission programming language",
-            example = "Java"
-    )
     private String language;
-
-    @Schema(
-            description = "Submission standard output",
-            example = "Hello"
-    )
-    private String stdout = "Hello";
-
-    @Schema(
-            description = "Submission standard error",
-            example = "0"
-    )
-    private String stderr = "0";
+    private String stdout;
+    private String stderr;
+    private String message;
+    private boolean passed;
+    private boolean syntaxError;
+    private Integer failedTestIndex;
+    private int attemptsUsed;
+    private int attemptsRemaining;
 }
